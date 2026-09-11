@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LASVASKAS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#141414;color:#ece7de;font-family:'Jost',sans-serif;
+  min-height:100vh;
+}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;background:#1e1e1e;border:1px solid #333;color:#ece7de;border-radius:6px;padding:9px 10px;font-size:14px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#c9a86a}
+label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacing:.02em}
+.field{margin-bottom:12px}
+.btn{padding:10px 18px;border-radius:7px;font-weight:600;font-size:14px;letter-spacing:.02em;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-primary{background:#c9a86a;color:#141414}
+.btn-outline{background:transparent;border:1px solid #444;color:#ece7de}
+.btn-danger{color:#e07a6b}
+.btn-sm{padding:6px 12px;font-size:12.5px}
+
+/* ---------- LOGIN ---------- */
+#screen-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{width:100%;max-width:340px;text-align:center}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:42px;letter-spacing:.05em;margin-bottom:6px}
+.login-sub{color:#9c968b;font-size:13px;margin-bottom:28px}
+.login-box .field{text-align:left}
+#login-error{color:#e07a6b;font-size:13px;margin-top:10px;min-height:16px}
+
+/* ---------- HEADER ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.topbar .brand{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+.topbar .actions{display:flex;gap:8px;align-items:center}
+.icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#242424;color:#ece7de}
+.icon-btn:hover{background:#2d2d2d}
+.debt-badge{background:#e07a6b;color:#141414;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px}
+
+.container{max-width:640px;margin:0 auto;padding:16px}
+.searchbar{margin-bottom:14px}
+.searchbar input{padding:11px 14px}
+
+.card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s}
+.card:hover{border-color:#444}
+.card .name{font-weight:600;font-size:15px}
+.card .meta{color:#9c968b;font-size:12.5px;margin-top:2px}
+.card .chev{color:#666}
+
+.fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;background:#c9a86a;color:#141414;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.4);z-index:15}
+
+.empty{text-align:center;color:#777;padding:60px 20px;font-size:14px}
+
+/* client detail */
+.backrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#9c968b;font-size:13px}
+.backrow:hover{color:#ece7de}
+.client-header{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:18px;margin-bottom:16px}
+.client-header .cname{font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:6px}
+.client-header .cinfo{color:#9c968b;font-size:13px;line-height:1.7}
+.client-header .cactions{display:flex;gap:10px;margin-top:12px}
+
+.doctype-btns{display:flex;gap:10px;margin-bottom:16px}
+.doctype-btns button{flex:1;padding:14px;border-radius:9px;border:1px solid #333;font-weight:600;font-size:13.5px}
+.doctype-btns button.presu{color:#ece7de}
+.doctype-btns button.venta{border-color:#c9a86a;color:#c9a86a}
+
+.doc-card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.doc-card:hover{border-color:#444}
+.doc-card .toprow{display:flex;justify-content:space-between;align-items:center}
+.tag-mini{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;font-weight:700}
+.tag-mini.presupuesto{background:#3d3d3d;color:#fff}
+.tag-mini.venta{background:transparent;border:1px solid #c9a86a;color:#c9a86a}
+.doc-card .fecha{font-size:12px;color:#9c968b}
+.doc-card .totales{margin-top:8px;font-size:13.5px;display:flex;justify-content:space-between}
+.doc-card .debe{color:#e07a6b;font-weight:600}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:700px){.modal-overlay{align-items:center}}
+.modal{background:#1a1a1a;border-radius:14px 14px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:22px 18px 30px;position:relative}
+@media(min-width:700px){.modal{border-radius:14px}}
+.modal-close{position:absolute;top:14px;right:14px;font-size:20px;color:#9c968b;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.modal-close:hover{background:#2a2a2a}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:18px;padding-right:30px}
+.row2{display:flex;gap:10px}
+.row2>.field{flex:1}
+
+.prod-row,.pago-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-end}
+.prod-row .field,.pago-row .field{margin-bottom:0}
+.rm-row{color:#e07a6b;font-size:18px;width:34px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.add-row-btn{color:#c9a86a;font-size:13px;font-weight:600;margin:4px 0 16px;display:inline-flex;align-items:center;gap:6px}
+.section-label{font-size:13px;font-weight:600;color:#c9a86a;margin:18px 0 8px;letter-spacing:.02em}
+
+/* ---------- PAPEL (documento) ---------- */
+.paper-wrap{background:#e9e6e0;border-radius:10px;padding:14px 8px;margin-top:10px}
+.paper{background:#fff;color:#2b2b2b;width:100%;padding:26px 16px 30px;font-family:'Jost',sans-serif;overflow:hidden}
+.p-toprow1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.p-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;letter-spacing:.02em;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.p-logo .bar{width:1.3px;height:20px;background:#2b2b2b}
+.p-badge{font-weight:600;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:5px 0;width:122px;text-align:center;white-space:nowrap;flex-shrink:0}
+.p-badge.presupuesto{background:#3d3d3d;color:#fff}
+.p-badge.venta{background:#fff;color:#3d3d3d;border:1.5px solid #3d3d3d;width:119px}
+.p-toprow2{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-top:8px}
+.p-bizinfo{font-family:'Cormorant Garamond',serif;font-size:11.5px;line-height:1.6;color:#444}
+.p-meta{font-size:11px;flex-shrink:0}
+.p-meta .row{margin-bottom:5px;text-align:right;white-space:nowrap}
+.p-meta .row span.line{display:inline-block;border-bottom:1px dotted #999;min-width:62px;margin-left:4px;text-align:center}
+.p-clientrow{display:flex;gap:10px;margin-bottom:5px;margin-top:14px;flex-wrap:wrap;font-size:11px}
+.p-clientrow>div{flex:1 1 45%;display:flex;min-width:0}
+.p-clientrow label{white-space:nowrap;margin-right:4px;color:#2b2b2b;font-size:11px}
+.p-clientrow .line{border-bottom:1px dotted #999;flex:1;min-width:0;overflow-wrap:break-word}
+table.p-detail{width:100%;border-collapse:collapse;margin-top:16px;font-family:'Jost',sans-serif;table-layout:fixed}
+table.p-detail col.c2,table.p-detail col.c3{width:64px}
+table.p-detail thead th{background:#3d3d3d;color:#fff;text-align:left;font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;padding:6px 5px;font-weight:600}
+table.p-detail thead th.num{text-align:right}
+table.p-detail tbody td{padding:7px 5px;font-size:11.5px;border-bottom:1px dotted #ccc;vertical-align:top;word-wrap:break-word}
+table.p-detail tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.p-detail tbody tr.notesrow td{font-size:10.5px;color:#555;font-style:italic;padding-top:10px}
+table.p-detail tfoot td{padding:3px 5px;font-size:11.5px}
+table.p-detail tfoot tr.rule td{padding:0;border-top:2px solid #2b2b2b}
+table.p-detail tfoot tr.totalrow td{font-weight:700}
+table.p-detail tfoot tr.totalrow td.num{text-align:right}
+table.p-detail tfoot tr.payrow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
+table.p-detail tfoot tr.payrow td.lbl b{display:block;font-weight:700}
+table.p-detail tfoot tr.payrow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
+table.p-detail tfoot tr.payrow td.num{text-align:right;font-weight:700}
+table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right}
+.p-terms{margin-top:20px;font-size:9.5px;line-height:1.55;color:#444}
+.p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
+.preview-actions{display:flex;gap:10px;margin-top:16px}
+.preview-actions .btn{flex:1;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="screen-login" class="screen">
+  <div class="login-box">
+    <div class="login-logo">LASVASKAS</div>
+    <div class="login-sub">Gestión de clientas y ventas</div>
+    <div class="field"><label>Email</label><input id="login-email" type="email" autocomplete="username"></div>
+    <div class="field"><label>Contraseña</label><input id="login-pass" type="password" autocomplete="current-password"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Ingresar</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- ============ CLIENTAS ============ -->
+<div id="screen-clientas" class="screen hidden">
+  <div class="topbar">
+    <div class="brand">LASVASKAS</div>
+    <div class="actions">
+      <button class="icon-btn" onclick="openDeudas()" title="Deudas"><i class="fa-solid fa-hand-holding-dollar"></i><span id="deudas-count" class="debt-badge hidden">0</span></button>
+      <button class="icon-btn" onclick="doLogout()" title="Salir"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="searchbar"><input id="search-input" placeholder="Buscar clienta..." oninput="renderClientasList()"></div>
+    <div id="clientas-list"></div>
+  </div>
+  <button class="fab" onclick="openClientaModal()">+</button>
+</div>
+
+<!-- ============ CLIENTE DETAIL ============ -->
+<div id="screen-cliente" class="screen hidden">
+  <div class="topbar">
+    <div class="brand" style="font-size:18px">Ficha de clienta</div>
+    <div class="actions"><button class="icon-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button></div>
+  </div>
+  <div class="container">
+    <div class="backrow" onclick="showScreen('clientas')"><i class="fa-solid fa-arrow-left"></i> Volver a Clientas</div>
+    <div id="client-header-box"></div>
+    <div class="doctype-btns">
+      <button class="presu" onclick="openDocModal('presupuesto')"><i class="fa-solid fa-file-lines"></i> Nuevo presupuesto</button>
+      <button class="venta" onclick="openDocModal('venta')"><i class="fa-solid fa-receipt"></i> Nuevo recibo de venta</button>
+    </div>
+    <div id="docs-list"></div>
+  </div>
+</div>
+
+<!-- ============ DEUDAS ============ -->
+<div id="screen-deudas" class="screen hidden">
+  <div class="topbar">
+    <div class="brand" style="font-size:18px">Deudas</div>
+    <div class="actions"><button class="icon-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button></div>
+  </div>
+  <div class="container">
+    <div class="backrow" onclick="showScreen('clientas')"><i class="fa-solid fa-arrow-left"></i> Volver a Clientas</div>
+    <div id="deudas-list"></div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CLIENTA ============ -->
+<div id="modal-clienta" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-clienta')">✕</button>
+    <h2 id="clienta-modal-title">Nueva clienta</h2>
+    <input type="hidden" id="clienta-id">
+    <div class="row2">
+      <div class="field"><label>Nombre</label><input id="clienta-nombre"></div>
+      <div class="field"><label>Apellido</label><input id="clienta-apellido"></div>
+    </div>
+    <div class="field"><label>Teléfono</label><input id="clienta-telefono" placeholder="11 1234-5678"></div>
+    <div class="row2">
+      <div class="field"><label>DNI</label><input id="clienta-dni"></div>
+      <div class="field"><label>Dirección</label><input id="clienta-direccion"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="saveClienta()">Guardar</button>
+    <div id="clienta-delete-row" class="hidden" style="text-align:center;margin-top:14px">
+      <button class="btn-danger" style="font-size:13px" onclick="deleteClienta()">Eliminar clienta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: DOCUMENTO ============ -->
+<div id="modal-doc" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-doc')">✕</button>
+    <h2 id="doc-modal-title">Nuevo presupuesto</h2>
+    <input type="hidden" id="doc-id">
+    <input type="hidden" id="doc-tipo">
+    <div class="row2">
+      <div class="field"><label>Fecha</label><input id="doc-fecha" type="date"></div>
+      <div class="field"><label>Fecha evento</label><input id="doc-fechaevento" type="date"></div>
+    </div>
+    <div class="section-label">Productos</div>
+    <div id="productos-container"></div>
+    <div class="add-row-btn" onclick="addProductoRow()"><i class="fa-solid fa-plus"></i> Agregar producto</div>
+    <div class="field"><label>Notas</label><textarea id="doc-notas" rows="2"></textarea></div>
+    <div id="pagos-section" class="hidden">
+      <div class="section-label">Pagos</div>
+      <div id="pagos-container"></div>
+      <div class="add-row-btn" onclick="addPagoRow()"><i class="fa-solid fa-plus"></i> Agregar pago</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="saveDoc()">Guardar</button>
+    <div id="doc-delete-row" class="hidden" style="text-align:center;margin-top:14px">
+      <button class="btn-danger" style="font-size:13px" onclick="deleteDoc()">Eliminar documento</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: PREVIEW ============ -->
+<div id="modal-preview" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-preview')">✕</button>
+    <h2>Vista previa</h2>
+    <div class="paper-wrap"><div id="paper-render" class="paper"></div></div>
+    <div class="preview-actions">
+      <button class="btn btn-outline" onclick="editCurrentDoc()"><i class="fa-solid fa-pen"></i> Editar</button>
+      <button class="btn btn-outline" onclick="downloadPDF()"><i class="fa-solid fa-download"></i> PDF</button>
+      <button class="btn btn-primary" onclick="sharePDF()"><i class="fa-brands fa-whatsapp"></i> Compartir</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* =================== CONFIG =================== */
+// TODO Fede: reemplazar con las claves reales de tu proyecto "lasvaskasbvf"
+const firebaseConfig = {
+  apiKey: "AIzaSyAA8FQZfp-UnuxyL0TQu8bF_pJnjY8tg8o",
+  authDomain: "lasvaskasbvf-ed5a4.firebaseapp.com",
+  projectId: "lasvaskasbvf-ed5a4",
+  storageBucket: "lasvaskasbvf-ed5a4.firebasestorage.app",
+  messagingSenderId: "690145608040",
+  appId: "1:690145608040:web:4662b403830ce4f40b16dd"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const BIZ = {
+  nombre:"LASVASKAS", direccion:"Zapata 406", telefono:"+54 9 11 5499-4480",
+  insta:"Instagram.com/lasvaskas", web:"www.lasvaskas.com.ar"
+};
+const METODOS = {
+  EFVO_ARS:{label:"Efectivo $", paren:"efectivo", moneda:"ARS"},
+  EFVO_USD:{label:"Efectivo usd", paren:"efectivo", moneda:"USD"},
+  TRBF:{label:"Transferencia BF", paren:"transferencia bf", moneda:"ARS"},
+  TRVF:{label:"Transferencia VF", paren:"transferencia vf", moneda:"ARS"},
+  TARJ:{label:"Tarjeta", paren:"tarjeta", moneda:"ARS"}
+};
+
+/* =================== STATE =================== */
+let clientasCache = [];
+let currentClienteId = null;
+let currentClienteData = null;
+let docsCache = [];
+let currentDocForPreview = null;
+let editingDocTipo = null;
+
+/* =================== HELPERS =================== */
+function num(v){ const n = parseFloat(String(v).replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; }
+function fmtARS(n){ return '$' + Math.round(n).toLocaleString('es-AR'); }
+function fmtUSD(n){ return 'usd ' + Math.round(n).toLocaleString('es-AR'); }
+function normalize(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('screen-'+name).classList.remove('hidden');
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+
+/* =================== AUTH =================== */
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  document.getElementById('login-error').textContent='';
+  auth.signInWithEmailAndPassword(email, pass).catch(err=>{
+    document.getElementById('login-error').textContent = 'No se pudo ingresar: revisá el email y la contraseña.';
+  });
+}
+function doLogout(){ auth.signOut(); }
+auth.onAuthStateChanged(user=>{
+  if(user){ showScreen('clientas'); loadClientas(); }
+  else{ showScreen('login'); }
+});
+
+/* =================== CLIENTAS =================== */
+function loadClientas(){
+  db.collection('clientas').orderBy('apellido').get().then(snap=>{
+    clientasCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderClientasList();
+  });
+  updateDeudasBadge();
+}
+function updateDeudasBadge(){
+  db.collectionGroup('documentos').where('tipo','==','venta').get().then(snap=>{
+    const n = snap.docs.filter(d=>{const x=d.data(); return x.aPagarARS>0||x.aPagarUSD>0;}).length;
+    const el = document.getElementById('deudas-count');
+    if(n>0){ el.textContent=n; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
+  });
+}
+function renderClientasList(){
+  const q = normalize(document.getElementById('search-input').value);
+  const list = document.getElementById('clientas-list');
+  const filtered = clientasCache.filter(c=> !q || normalize(c.nombre+' '+c.apellido).includes(q));
+  if(!filtered.length){ list.innerHTML = '<div class="empty">No hay clientas todavía.<br>Tocá el + para agregar la primera.</div>'; return; }
+  list.innerHTML = filtered.map(c=>`
+    <div class="card" onclick="openClienteDetail('${c.id}')">
+      <div>
+        <div class="name">${c.nombre} ${c.apellido}</div>
+        <div class="meta">${c.telefono||''}</div>
+      </div>
+      <div class="chev"><i class="fa-solid fa-chevron-right"></i></div>
+    </div>`).join('');
+}
+function openClientaModal(existing){
+  document.getElementById('clienta-id').value = existing? existing.id : '';
+  document.getElementById('clienta-nombre').value = existing? existing.nombre : '';
+  document.getElementById('clienta-apellido').value = existing? existing.apellido : '';
+  document.getElementById('clienta-telefono').value = existing? existing.telefono : '';
+  document.getElementById('clienta-dni').value = existing? existing.dni : '';
+  document.getElementById('clienta-direccion').value = existing? existing.direccion : '';
+  document.getElementById('clienta-modal-title').textContent = existing? 'Editar clienta' : 'Nueva clienta';
+  document.getElementById('clienta-delete-row').classList.toggle('hidden', !existing);
+  openModal('modal-clienta');
+}
+function saveClienta(){
+  const id = document.getElementById('clienta-id').value;
+  const data = {
+    nombre: document.getElementById('clienta-nombre').value.trim(),
+    apellido: document.getElementById('clienta-apellido').value.trim(),
+    telefono: document.getElementById('clienta-telefono').value.trim(),
+    dni: document.getElementById('clienta-dni').value.trim(),
+    direccion: document.getElementById('clienta-direccion').value.trim()
+  };
+  if(!data.nombre || !data.apellido){ alert('Nombre y apellido son obligatorios'); return; }
+  const p = id ? db.collection('clientas').doc(id).update(data)
+               : db.collection('clientas').add({...data, createdAt: Date.now()});
+  p.then(()=>{
+    closeModal('modal-clienta');
+    loadClientas();
+    if(id && currentClienteId===id){ currentClienteData={...currentClienteData,...data}; renderClientHeader(); }
+  });
+}
+function deleteClienta(){
+  const id = document.getElementById('clienta-id').value;
+  if(!confirm('¿Eliminar esta clienta y todos sus documentos?')) return;
+  db.collection('clientas').doc(id).collection('documentos').get().then(snap=>{
+    const batch = db.batch();
+    snap.docs.forEach(d=>batch.delete(d.ref));
+    batch.delete(db.collection('clientas').doc(id));
+    return batch.commit();
+  }).then(()=>{
+    closeModal('modal-clienta');
+    showScreen('clientas');
+    loadClientas();
+  });
+}
+
+/* =================== CLIENTE DETAIL =================== */
+function openClienteDetail(id){
+  currentClienteId = id;
+  db.collection('clientas').doc(id).get().then(doc=>{
+    currentClienteData = {id: doc.id, ...doc.data()};
+    renderClientHeader();
+    showScreen('cliente');
+    loadDocs();
+  });
+}
+function renderClientHeader(){
+  const c = currentClienteData;
+  document.getElementById('client-header-box').innerHTML = `
+    <div class="client-header">
+      <div class="cname">${c.nombre} ${c.apellido}</div>
+      <div class="cinfo">
+        ${c.telefono? `<div><i class="fa-brands fa-whatsapp"></i> ${c.telefono}</div>`:''}
+        ${c.dni? `<div>DNI: ${c.dni}</div>`:''}
+        ${c.direccion? `<div>${c.direccion}</div>`:''}
+      </div>
+      <div class="cactions">
+        <button class="btn btn-outline btn-sm" onclick="openClientaModal(currentClienteData)">Editar</button>
+      </div>
+    </div>`;
+}
+function loadDocs(){
+  db.collection('clientas').doc(currentClienteId).collection('documentos').orderBy('createdAt','desc').get().then(snap=>{
+    docsCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderDocsList();
+  });
+}
+function renderDocsList(){
+  const list = document.getElementById('docs-list');
+  if(!docsCache.length){ list.innerHTML = '<div class="empty">Todavía no hay presupuestos ni ventas cargadas.</div>'; return; }
+  list.innerHTML = docsCache.map(d=>{
+    let totales = '';
+    if(d.tipo==='presupuesto'){
+      totales = `<span>Efvo: ${fmtARS(d.totalEfvo||0)}</span><span>Tarj: ${fmtARS(d.totalTarj||0)}</span>`;
+    } else {
+      const debe = (d.aPagarARS>0?fmtARS(d.aPagarARS):'') + (d.aPagarARS>0&&d.aPagarUSD>0?' + ':'') + (d.aPagarUSD>0?fmtUSD(d.aPagarUSD):'');
+      totales = `<span>Total: ${d.totalARS?fmtARS(d.totalARS):''} ${d.totalUSD?fmtUSD(d.totalUSD):''}</span>` +
+                (debe? `<span class="debe">A pagar: ${debe}</span>` : `<span style="color:#7bb88a">Saldado</span>`);
+    }
+    return `<div class="doc-card" onclick="openPreviewById('${d.id}')">
+      <div class="toprow">
+        <span class="tag-mini ${d.tipo}">${d.tipo==='presupuesto'?'Presupuesto':'Recibo de venta'}</span>
+        <span class="fecha">${fmtDate(d.fecha)}</span>
+      </div>
+      <div class="totales">${totales}</div>
+    </div>`;
+  }).join('');
+}
+
+/* =================== DOC MODAL (crear/editar) =================== */
+function openDocModal(tipo, existing){
+  editingDocTipo = tipo;
+  document.getElementById('doc-id').value = existing? existing.id : '';
+  document.getElementById('doc-tipo').value = tipo;
+  document.getElementById('doc-fecha').value = existing? existing.fecha : todayISO();
+  document.getElementById('doc-fechaevento').value = existing? (existing.fechaEvento||'') : '';
+  document.getElementById('doc-notas').value = existing? (existing.notas||'') : '';
+  document.getElementById('doc-modal-title').textContent = (existing?'Editar ':'Nuevo ') + (tipo==='presupuesto'?'presupuesto':'recibo de venta');
+  document.getElementById('pagos-section').classList.toggle('hidden', tipo!=='venta');
+  document.getElementById('doc-delete-row').classList.toggle('hidden', !existing);
+
+  document.getElementById('productos-container').innerHTML='';
+  const productos = existing? existing.productos : [{}];
+  productos.forEach(p=>addProductoRow(p));
+
+  document.getElementById('pagos-container').innerHTML='';
+  if(tipo==='venta'){
+    const pagos = existing? (existing.pagos||[]) : [];
+    pagos.forEach(p=>addPagoRow(p));
+  }
+  openModal('modal-doc');
+}
+function addProductoRow(p){
+  p = p||{};
+  const cont = document.getElementById('productos-container');
+  const row = document.createElement('div');
+  row.className='prod-row';
+  if(editingDocTipo==='presupuesto'){
+    row.innerHTML = `
+      <div class="field" style="flex:2"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
+      <div class="field" style="flex:1"><input class="pd-efvo" placeholder="Efectivo $" value="${p.efvo||''}"></div>
+      <div class="field" style="flex:1"><input class="pd-tarj" placeholder="Tarjeta $" value="${p.tarj||''}"></div>
+      <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
+  } else {
+    row.innerHTML = `
+      <div class="field" style="flex:2"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
+      <div class="field" style="flex:0 0 66px"><select class="pd-moneda"><option value="ARS" ${p.moneda==='ARS'?'selected':''}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
+      <div class="field" style="flex:1"><input class="pd-valor" placeholder="Valor" value="${p.valor||''}"></div>
+      <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
+  }
+  cont.appendChild(row);
+}
+function addPagoRow(p){
+  p = p||{};
+  const cont = document.getElementById('pagos-container');
+  const row = document.createElement('div');
+  row.className='pago-row';
+  const opts = Object.keys(METODOS).map(k=>`<option value="${k}" ${p.metodo===k?'selected':''}>${METODOS[k].label}</option>`).join('');
+  row.innerHTML = `
+    <div class="field" style="flex:1.3"><select class="pg-metodo">${opts}</select></div>
+    <div class="field" style="flex:1"><input class="pg-monto" placeholder="Monto" value="${p.monto||''}"></div>
+    <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
+  cont.appendChild(row);
+}
+function saveDoc(){
+  const tipo = document.getElementById('doc-tipo').value;
+  const id = document.getElementById('doc-id').value;
+  const fecha = document.getElementById('doc-fecha').value || todayISO();
+  const fechaEvento = document.getElementById('doc-fechaevento').value;
+  const notas = document.getElementById('doc-notas').value.trim();
+
+  let productos = [], totalEfvo=0, totalTarj=0, totalARS=0, totalUSD=0;
+  document.querySelectorAll('#productos-container .prod-row').forEach(row=>{
+    const desc = row.querySelector('.pd-desc').value.trim();
+    if(!desc) return;
+    if(tipo==='presupuesto'){
+      const efvo = num(row.querySelector('.pd-efvo').value);
+      const tarj = num(row.querySelector('.pd-tarj').value);
+      productos.push({desc, efvo, tarj});
+      totalEfvo += efvo; totalTarj += tarj;
+    } else {
+      const moneda = row.querySelector('.pd-moneda').value;
+      const valor = num(row.querySelector('.pd-valor').value);
+      productos.push({desc, moneda, valor});
+      if(moneda==='ARS') totalARS += valor; else totalUSD += valor;
+    }
+  });
+  if(!productos.length){ alert('Agregá al menos un producto con descripción.'); return; }
+
+  let data = {tipo, fecha, fechaEvento, notas, productos,
+    clienteNombre: currentClienteData.nombre, clienteApellido: currentClienteData.apellido,
+    clienteTelefono: currentClienteData.telefono||''};
+
+  if(tipo==='presupuesto'){
+    data.totalEfvo = totalEfvo; data.totalTarj = totalTarj;
+  } else {
+    let pagos=[], pagadoARS=0, pagadoUSD=0;
+    document.querySelectorAll('#pagos-container .pago-row').forEach(row=>{
+      const metodo = row.querySelector('.pg-metodo').value;
+      const monto = num(row.querySelector('.pg-monto').value);
+      if(monto<=0) return;
+      pagos.push({metodo, monto});
+      if(METODOS[metodo].moneda==='ARS') pagadoARS += monto; else pagadoUSD += monto;
+    });
+    data.pagos = pagos; data.totalARS = totalARS; data.totalUSD = totalUSD;
+    data.pagadoARS = pagadoARS; data.pagadoUSD = pagadoUSD;
+    data.aPagarARS = Math.max(0, totalARS - pagadoARS);
+    data.aPagarUSD = Math.max(0, totalUSD - pagadoUSD);
+  }
+
+  const ref = db.collection('clientas').doc(currentClienteId).collection('documentos');
+  const p = id ? ref.doc(id).update(data) : ref.add({...data, createdAt: Date.now()});
+  p.then((res)=>{
+    closeModal('modal-doc');
+    loadDocs();
+    const savedId = id || res.id;
+    setTimeout(()=>openPreviewById(savedId), 250);
+  });
+}
+function deleteDoc(){
+  const id = document.getElementById('doc-id').value;
+  if(!id || !confirm('¿Eliminar este documento?')) return;
+  db.collection('clientas').doc(currentClienteId).collection('documentos').doc(id).delete().then(()=>{
+    closeModal('modal-doc');
+    closeModal('modal-preview');
+    loadDocs();
+  });
+}
+function editCurrentDoc(){
+  closeModal('modal-preview');
+  openDocModal(currentDocForPreview.tipo, currentDocForPreview);
+}
+
+/* =================== PREVIEW / PDF =================== */
+function openPreviewById(id){
+  const d = docsCache.find(x=>x.id===id);
+  if(d){ renderPreview(d); return; }
+  db.collection('clientas').doc(currentClienteId).collection('documentos').doc(id).get().then(doc=>{
+    renderPreview({id:doc.id, ...doc.data()});
+  });
+}
+function renderPreview(d){
+  currentDocForPreview = d;
+  const c = currentClienteData;
+  const isPresu = d.tipo==='presupuesto';
+  const badgeClass = isPresu?'presupuesto':'venta';
+  const badgeText = isPresu?'Presupuesto':'Recibo de venta';
+
+  let theadCols, rowsHTML, totalsHTML;
+  if(isPresu){
+    theadCols = `<th>Detalle</th><th class="num">Efectivo</th><th class="num">Tarjeta</th>`;
+    rowsHTML = d.productos.map(p=>`<tr><td>${p.desc}</td><td class="num">${fmtARS(p.efvo)}</td><td class="num">${fmtARS(p.tarj)}</td></tr>`).join('');
+    totalsHTML = `<tr class="rule"><td colspan="3"></td></tr>
+      <tr class="totalrow"><td>Total</td><td class="num">${fmtARS(d.totalEfvo)}</td><td class="num">${fmtARS(d.totalTarj)}</td></tr>`;
+  } else {
+    theadCols = `<th>Detalle</th><th></th><th class="num">Valor</th>`;
+    rowsHTML = d.productos.map(p=>`<tr><td>${p.desc}</td><td></td><td class="num">${p.moneda==='ARS'?fmtARS(p.valor):fmtUSD(p.valor)}</td></tr>`).join('');
+    let rows = `<tr class="rule"><td colspan="3"></td></tr>`;
+    if(d.totalARS>0) rows += `<tr class="totalrow"><td></td><td class="lbl">Total</td><td class="num">${fmtARS(d.totalARS)}</td></tr>`;
+    if(d.totalUSD>0) rows += `<tr class="totalrow"><td></td><td class="lbl">Total</td><td class="num">${fmtUSD(d.totalUSD)}</td></tr>`;
+    (d.pagos||[]).forEach(p=>{
+      const m = METODOS[p.metodo];
+      rows += `<tr class="payrow"><td></td><td class="lbl"><b>Pago</b><span class="paren">(${m.paren})</span></td><td class="num">${m.moneda==='ARS'?fmtARS(p.monto):fmtUSD(p.monto)}</td></tr>`;
+    });
+    if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
+    if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
+    totalsHTML = rows;
+  }
+
+  const notesHTML = d.notas? `<tr class="notesrow"><td colspan="3"><b>Notas:</b> ${d.notas}</td></tr>` : '';
+
+  const termsHTML = isPresu ? `
+    <div class="b">Efectivo 20% de descuento (2 cuotas dentro de los 30 días)</div>
+    <div class="b">Tarjeta 3 cuotas sin interés. Precio de lista.</div>
+    <div>- Presupuesto válido por 30 días.</div>
+    <div>- Las ventas con descuento tendrán una tolerancia de 30 días para su pago en efectivo. En caso contrario el saldo restante se abonará al precio de lista.</div>
+    <div>- Una vez realizada la seña no se realizan devoluciones de dinero.</div>
+    <div>- Documento no válido como factura.</div>
+  ` : `
+    <div>- Las ventas con descuento tendrán una tolerancia de 30 días para su pago en efectivo. En caso contrario el saldo restante se abonará al precio de lista.</div>
+    <div>- Una vez realizada la seña no se realizan devoluciones de dinero.</div>
+    <div>- Documento no válido como factura.</div>
+  `;
+
+  document.getElementById('paper-render').innerHTML = `
+    <div class="p-toprow1">
+      <div class="p-logo"><span class="bar"></span>${BIZ.nombre}<span class="bar"></span></div>
+      <div class="p-badge ${badgeClass}">${badgeText}</div>
+    </div>
+    <div class="p-toprow2">
+      <div class="p-bizinfo">${BIZ.direccion}<br>${BIZ.telefono}<br>${BIZ.insta}<br>${BIZ.web}</div>
+      <div class="p-meta">
+        <div class="row">Fecha: <span class="line">${fmtDate(d.fecha)}</span></div>
+        <div class="row">Fecha evento: <span class="line">${d.fechaEvento?fmtDate(d.fechaEvento):'-'}</span></div>
+      </div>
+    </div>
+    <div class="p-clientrow">
+      <div><label>Nombre:</label><span class="line">${c.nombre} ${c.apellido}</span></div>
+      <div><label>Celular:</label><span class="line">${c.telefono||''}</span></div>
+    </div>
+    <div class="p-clientrow">
+      <div><label>Dirección:</label><span class="line">${c.direccion||''}</span></div>
+      <div><label>DNI:</label><span class="line">${c.dni||''}</span></div>
+    </div>
+    <table class="p-detail">
+      <colgroup><col><col class="c2"><col class="c3"></colgroup>
+      <thead><tr>${theadCols}</tr></thead>
+      <tbody>${rowsHTML}${notesHTML}</tbody>
+      <tfoot>${totalsHTML}</tfoot>
+    </table>
+    <div class="p-terms">${termsHTML}</div>
+  `;
+  openModal('modal-preview');
+}
+function pdfFilename(){
+  const d = currentDocForPreview, c = currentClienteData;
+  return `${d.tipo}-${c.apellido}-${d.fecha}.pdf`.replace(/\s+/g,'_');
+}
+function renderToCanvas(cb){
+  html2canvas(document.getElementById('paper-render'), {scale:2, backgroundColor:'#ffffff'}).then(cb);
+}
+function downloadPDF(){
+  renderToCanvas(canvas=>{
+    const img = canvas.toDataURL('image/png');
+    const pdf = new jspdf.jsPDF('p','pt',[canvas.width/2, canvas.height/2]);
+    pdf.addImage(img,'PNG',0,0,canvas.width/2, canvas.height/2);
+    pdf.save(pdfFilename());
+  });
+}
+function sharePDF(){
+  renderToCanvas(canvas=>{
+    canvas.toBlob(blob=>{
+      const file = new File([blob], pdfFilename().replace('.pdf','.png'), {type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], title:BIZ.nombre, text:`${BIZ.nombre} — ${currentDocForPreview.tipo==='presupuesto'?'Presupuesto':'Recibo de venta'}`});
+      } else {
+        downloadPDF();
+        const tel = (currentClienteData.telefono||'').replace(/\D/g,'');
+        if(tel) window.open(`https://wa.me/54${tel.replace(/^0/,'').replace(/^15/,'9')}?text=${encodeURIComponent('¡Hola! Te comparto tu '+(currentDocForPreview.tipo==='presupuesto'?'presupuesto':'recibo')+' de LASVASKAS.')}`,'_blank');
+      }
+    });
+  });
+}
+
+/* =================== DEUDAS =================== */
+function openDeudas(){
+  db.collectionGroup('documentos').where('tipo','==','venta').get().then(snap=>{
+    const deudas = snap.docs.map(d=>({id:d.id, clienteId:d.ref.parent.parent.id, ...d.data()}))
+      .filter(d=> (d.aPagarARS>0) || (d.aPagarUSD>0));
+    renderDeudasList(deudas);
+    showScreen('deudas');
+  });
+}
+function renderDeudasList(deudas){
+  const list = document.getElementById('deudas-list');
+  if(!deudas.length){ list.innerHTML = '<div class="empty">No hay deudas pendientes 🎉</div>'; return; }
+  list.innerHTML = deudas.map(d=>{
+    const debe = (d.aPagarARS>0?fmtARS(d.aPagarARS):'') + (d.aPagarARS>0&&d.aPagarUSD>0?' + ':'') + (d.aPagarUSD>0?fmtUSD(d.aPagarUSD):'');
+    return `<div class="card" onclick="openClienteDetail('${d.clienteId}')">
+      <div>
+        <div class="name">${d.clienteNombre} ${d.clienteApellido}</div>
+        <div class="meta">${fmtDate(d.fecha)}</div>
+      </div>
+      <div class="debe" style="font-weight:700">${debe}</div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
