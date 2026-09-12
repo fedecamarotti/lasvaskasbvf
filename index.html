@@ -40,6 +40,8 @@ label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacin
 .topbar .actions{display:flex;gap:8px;align-items:center}
 .icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#242424;color:#ece7de}
 .icon-btn:hover{background:#2d2d2d}
+.chip-btn{background:#242424;color:#ece7de;border-radius:20px;padding:9px 14px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+.chip-btn:hover{background:#2d2d2d}
 .debt-badge{background:#e07a6b;color:#141414;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px}
 
 .container{max-width:640px;margin:0 auto;padding:16px}
@@ -167,7 +169,7 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
   <div class="topbar">
     <div class="brand">LASVASKAS</div>
     <div class="actions">
-      <button class="icon-btn" onclick="openDeudas()" title="Deudoras"><i class="fa-solid fa-hand-holding-dollar"></i><span id="deudas-count" class="debt-badge hidden">0</span></button>
+      <button class="chip-btn" onclick="openDeudas()"><i class="fa-solid fa-hand-holding-dollar"></i> Deudoras<span id="deudas-count" class="debt-badge hidden">0</span></button>
       <button class="icon-btn" onclick="doLogout()" title="Salir"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
@@ -260,7 +262,7 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-pago')">✕</button>
     <h2>Registrar pago</h2>
-    <div class="field"><label>Documento a saldar</label><select id="pago-doc-select"></select></div>
+    <div class="field hidden"><label>Documento a saldar</label><select id="pago-doc-select"></select></div>
     <div class="field"><label>Método de pago</label><select id="pago-metodo-select"></select></div>
     <div class="field"><label>Monto</label><input id="pago-monto-input" placeholder="Monto"></div>
     <div class="field"><label>Cotización (solo si pagás en una moneda distinta a la de la deuda)</label><input id="pago-cotizacion-input" placeholder="ej: 1350"></div>
@@ -363,35 +365,32 @@ auth.onAuthStateChanged(user=>{
 });
 
 /* =================== CLIENTAS =================== */
-let deudasMap = {};
 function loadClientas(){
   db.collection('clientas').orderBy('apellido').get().then(snap=>{
     clientasCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
     renderClientasList();
+    updateDeudasBadge();
   }).catch(err=>{
     console.error('Error cargando clientas:', err);
     document.getElementById('clientas-list').innerHTML = '<div class="empty">No se pudieron cargar las clientas. Revisá la consola.</div>';
   });
-  refreshDeudasMap().then(()=>renderClientasList()).catch(err=>{
-    console.error('Error cargando deudas (puede faltar crear un índice en Firestore, revisá la consola del navegador):', err);
-  });
 }
-function refreshDeudasMap(){
-  return db.collectionGroup('documentos').where('tipo','==','venta').get().then(snap=>{
-    deudasMap = {};
-    let count = 0;
+function updateDeudasBadge(){
+  const count = clientasCache.filter(c=>(c.deudaARS>0)||(c.deudaUSD>0)).length;
+  const el = document.getElementById('deudas-count');
+  if(count>0){ el.textContent=count; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
+}
+// Recalcula la deuda total de una clienta (suma de sus ventas pendientes) y la guarda en su ficha,
+// así la lista principal la puede mostrar sin necesitar consultas especiales de Firestore.
+function recomputeClienteDeuda(clienteId){
+  return db.collection('clientas').doc(clienteId).collection('documentos').where('tipo','==','venta').get().then(snap=>{
+    let deudaARS = 0, deudaUSD = 0;
     snap.docs.forEach(doc=>{
       const x = doc.data();
-      if((x.aPagarARS>0) || (x.aPagarUSD>0)){
-        const cid = doc.ref.parent.parent.id;
-        if(!deudasMap[cid]) deudasMap[cid] = {ars:0, usd:0};
-        deudasMap[cid].ars += x.aPagarARS||0;
-        deudasMap[cid].usd += x.aPagarUSD||0;
-        count++;
-      }
+      deudaARS += x.aPagarARS||0;
+      deudaUSD += x.aPagarUSD||0;
     });
-    const el = document.getElementById('deudas-count');
-    if(count>0){ el.textContent=count; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
+    return db.collection('clientas').doc(clienteId).update({deudaARS, deudaUSD}).then(()=>({deudaARS, deudaUSD}));
   });
 }
 function fmtDebtObj(o){
@@ -404,7 +403,7 @@ function renderClientasList(){
   const filtered = clientasCache.filter(c=> !q || normalize(c.nombre+' '+c.apellido).includes(q));
   if(!filtered.length){ list.innerHTML = '<div class="empty">No hay clientas todavía.<br>Tocá el + para agregar la primera.</div>'; return; }
   list.innerHTML = filtered.map(c=>{
-    const debt = deudasMap[c.id];
+    const debt = (c.deudaARS>0||c.deudaUSD>0) ? {ars:c.deudaARS||0, usd:c.deudaUSD||0} : null;
     return `
     <div class="card">
       <div class="card-main" onclick="openClienteDetail('${c.id}')">
@@ -649,18 +648,27 @@ function saveDoc(){
   const p = id ? ref.doc(id).update(data) : ref.add({...data, createdAt: Date.now()});
   p.then((res)=>{
     closeModal('modal-doc');
-    loadDocs();
     const savedId = id || res.id;
+    if(tipo==='venta'){
+      recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
+    } else {
+      loadDocs();
+    }
     setTimeout(()=>openPreviewById(savedId), 250);
   });
 }
 function deleteDoc(){
   const id = document.getElementById('doc-id').value;
+  const tipo = document.getElementById('doc-tipo').value;
   if(!id || !confirm('¿Eliminar este documento?')) return;
   db.collection('clientas').doc(currentClienteId).collection('documentos').doc(id).delete().then(()=>{
     closeModal('modal-doc');
     closeModal('modal-preview');
-    loadDocs();
+    if(tipo==='venta'){
+      recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
+    } else {
+      loadDocs();
+    }
   });
 }
 function editCurrentDoc(){
@@ -736,7 +744,7 @@ function savePago(){
   });
   batch.commit().then(()=>{
     closeModal('modal-pago');
-    loadDocs();
+    recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
   });
 }
 
@@ -863,24 +871,21 @@ function shareImage(){
 
 /* =================== DEUDAS =================== */
 function openDeudas(){
-  db.collectionGroup('documentos').where('tipo','==','venta').get().then(snap=>{
-    const deudas = snap.docs.map(d=>({id:d.id, clienteId:d.ref.parent.parent.id, ...d.data()}))
-      .filter(d=> (d.aPagarARS>0) || (d.aPagarUSD>0));
-    renderDeudasList(deudas);
-    showScreen('deudas');
-  });
+  const deudoras = clientasCache.filter(c=>(c.deudaARS>0)||(c.deudaUSD>0));
+  renderDeudasList(deudoras);
+  showScreen('deudas');
 }
-function renderDeudasList(deudas){
+function renderDeudasList(deudoras){
   const list = document.getElementById('deudas-list');
-  if(!deudas.length){ list.innerHTML = '<div class="empty">No hay deudas pendientes 🎉</div>'; return; }
-  list.innerHTML = deudas.map(d=>{
-    const debe = (d.aPagarARS>0?fmtARS(d.aPagarARS):'') + (d.aPagarARS>0&&d.aPagarUSD>0?' + ':'') + (d.aPagarUSD>0?fmtUSD(d.aPagarUSD):'');
-    return `<div class="card" onclick="openClienteDetail('${d.clienteId}')">
+  if(!deudoras.length){ list.innerHTML = '<div class="empty">No hay deudoras con saldo pendiente 🎉</div>'; return; }
+  list.innerHTML = deudoras.map(c=>{
+    const debe = fmtDebtObj({ars:c.deudaARS||0, usd:c.deudaUSD||0});
+    return `<div class="card" onclick="openClienteDetail('${c.id}')">
       <div>
-        <div class="name">${d.clienteNombre} ${d.clienteApellido}</div>
-        <div class="meta">${fmtDate(d.fecha)}</div>
+        <div class="name">${c.nombre} ${c.apellido}</div>
+        <div class="meta">${c.telefono||''}</div>
       </div>
-      <div class="debe" style="font-weight:700">${debe}</div>
+      <div class="debe" style="font-weight:700;color:#e07a6b">${debe}</div>
     </div>`;
   }).join('');
 }
