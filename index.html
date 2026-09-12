@@ -46,14 +46,19 @@ label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacin
 .searchbar{margin-bottom:14px}
 .searchbar input{padding:11px 14px}
 
-.card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s}
+.card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .15s}
 .card:hover{border-color:#444}
+.card-main{flex:1;min-width:0;cursor:pointer}
 .card .name{font-weight:600;font-size:15px}
 .card .meta{color:#9c968b;font-size:12.5px;margin-top:2px}
-.card .chev{color:#666}
-.card .wa-link{color:#25D366;font-size:19px;margin-left:10px;flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.card-debt{flex-shrink:0;text-align:right;cursor:pointer;line-height:1.25}
+.card-debt .debt-label{color:#e07a6b;font-weight:700;font-size:11.5px;letter-spacing:.03em;text-transform:uppercase}
+.card-debt .debt-amount{color:#e07a6b;font-weight:600;font-size:13px}
+.card .wa-link{color:#25D366;font-size:19px;margin-left:2px;flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;text-decoration:none}
 .card .wa-link:hover{background:#242424}
-.card .meta.debe{color:#e07a6b;font-weight:600;margin-top:3px}
+.ch-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ch-wa{color:#25D366;font-size:20px;text-decoration:none;flex-shrink:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid #2a2a2a}
+.ch-wa:hover{background:#242424}
 
 .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;background:#c9a86a;color:#141414;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.4);z-index:15}
 
@@ -79,6 +84,7 @@ label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacin
 .tag-mini{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;font-weight:700}
 .tag-mini.presupuesto{background:#3d3d3d;color:#fff}
 .tag-mini.venta{background:transparent;border:1px solid #c9a86a;color:#c9a86a}
+.tag-mini.pago{background:transparent;border:1px solid #5f8f6f;color:#8fb89c}
 .doc-card .fecha{font-size:12px;color:#9c968b}
 .doc-card .totales{margin-top:8px;font-size:13.5px;display:flex;justify-content:space-between}
 .doc-card .debe{color:#e07a6b;font-weight:600}
@@ -130,10 +136,11 @@ table.p-detail tfoot tr.rule td{padding:0;border-top:2px solid #2b2b2b}
 table.p-detail tfoot tr.totalrow td{font-weight:700}
 table.p-detail tfoot tr.totalrow td.num{text-align:right}
 table.p-detail tfoot tr.totalrow td.lbl{text-align:right}
-table.p-detail tfoot tr.payrow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
-table.p-detail tfoot tr.payrow td.lbl b{display:block;font-weight:700}
-table.p-detail tfoot tr.payrow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
-table.p-detail tfoot tr.payrow td.num{text-align:right;font-weight:700}
+table.p-detail tfoot tr.payrow td.lbl,table.p-detail tfoot tr.saldorow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
+table.p-detail tfoot tr.payrow td.lbl b,table.p-detail tfoot tr.saldorow td.lbl b{display:block;font-weight:700}
+table.p-detail tfoot tr.payrow td.lbl .paren,table.p-detail tfoot tr.saldorow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
+table.p-detail tfoot tr.payrow td.num,table.p-detail tfoot tr.saldorow td.num{text-align:right;font-weight:700}
+table.p-detail tfoot tr.saldorow td.lbl,table.p-detail tfoot tr.saldorow td.num{color:#3d7a52}
 table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right}
 .p-terms{margin-top:20px;font-size:9.5px;line-height:1.55;color:#444}
 .p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
@@ -160,7 +167,7 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
   <div class="topbar">
     <div class="brand">LASVASKAS</div>
     <div class="actions">
-      <button class="icon-btn" onclick="openDeudas()" title="Deudas"><i class="fa-solid fa-hand-holding-dollar"></i><span id="deudas-count" class="debt-badge hidden">0</span></button>
+      <button class="icon-btn" onclick="openDeudas()" title="Deudoras"><i class="fa-solid fa-hand-holding-dollar"></i><span id="deudas-count" class="debt-badge hidden">0</span></button>
       <button class="icon-btn" onclick="doLogout()" title="Salir"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
@@ -191,7 +198,7 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
 <!-- ============ DEUDAS ============ -->
 <div id="screen-deudas" class="screen hidden">
   <div class="topbar">
-    <div class="brand" style="font-size:18px">Deudas</div>
+    <div class="brand" style="font-size:18px">Deudoras</div>
     <div class="actions"><button class="icon-btn" onclick="goBackToClientas()" title="Volver"><i class="fa-solid fa-arrow-left"></i></button></div>
   </div>
   <div class="container">
@@ -256,6 +263,7 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
     <div class="field"><label>Documento a saldar</label><select id="pago-doc-select"></select></div>
     <div class="field"><label>Método de pago</label><select id="pago-metodo-select"></select></div>
     <div class="field"><label>Monto</label><input id="pago-monto-input" placeholder="Monto"></div>
+    <div class="field"><label>Cotización (solo si pagás en una moneda distinta a la de la deuda)</label><input id="pago-cotizacion-input" placeholder="ej: 1350"></div>
     <button class="btn btn-primary" style="width:100%" onclick="savePago()">Guardar pago</button>
   </div>
 </div>
@@ -359,9 +367,13 @@ let deudasMap = {};
 function loadClientas(){
   db.collection('clientas').orderBy('apellido').get().then(snap=>{
     clientasCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
-    return refreshDeudasMap();
-  }).then(()=>{
     renderClientasList();
+  }).catch(err=>{
+    console.error('Error cargando clientas:', err);
+    document.getElementById('clientas-list').innerHTML = '<div class="empty">No se pudieron cargar las clientas. Revisá la consola.</div>';
+  });
+  refreshDeudasMap().then(()=>renderClientasList()).catch(err=>{
+    console.error('Error cargando deudas (puede faltar crear un índice en Firestore, revisá la consola del navegador):', err);
   });
 }
 function refreshDeudasMap(){
@@ -391,18 +403,18 @@ function renderClientasList(){
   const list = document.getElementById('clientas-list');
   const filtered = clientasCache.filter(c=> !q || normalize(c.nombre+' '+c.apellido).includes(q));
   if(!filtered.length){ list.innerHTML = '<div class="empty">No hay clientas todavía.<br>Tocá el + para agregar la primera.</div>'; return; }
-  list.innerHTML = filtered.map(c=>`
+  list.innerHTML = filtered.map(c=>{
+    const debt = deudasMap[c.id];
+    return `
     <div class="card">
-      <div style="flex:1;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openClienteDetail('${c.id}')">
-        <div>
-          <div class="name">${c.nombre} ${c.apellido}</div>
-          <div class="meta">${c.telefono||''}</div>
-          ${deudasMap[c.id]? `<div class="meta debe">Debe: ${fmtDebtObj(deudasMap[c.id])}</div>` : ''}
-        </div>
-        <div class="chev"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="card-main" onclick="openClienteDetail('${c.id}')">
+        <div class="name">${c.nombre} ${c.apellido}</div>
+        <div class="meta">${c.telefono||''}</div>
       </div>
+      ${debt? `<div class="card-debt" onclick="openClienteDetail('${c.id}')"><div class="debt-label">Debe</div><div class="debt-amount">${fmtDebtObj(debt)}</div></div>` : ''}
       ${c.telefono? `<a class="wa-link" href="${waLink(c.telefono)}" target="_blank" onclick="event.stopPropagation()"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 function openClientaModal(existing){
   document.getElementById('clienta-id').value = existing? existing.id : '';
@@ -462,9 +474,12 @@ function renderClientHeader(){
   const c = currentClienteData;
   document.getElementById('client-header-box').innerHTML = `
     <div class="client-header">
-      <div class="cname">${c.nombre} ${c.apellido}</div>
+      <div class="ch-top">
+        <div class="cname">${c.nombre} ${c.apellido}</div>
+        ${c.telefono? `<a class="ch-wa" href="${waLink(c.telefono)}" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+      </div>
       <div class="cinfo">
-        ${c.telefono? `<div><i class="fa-brands fa-whatsapp"></i> ${c.telefono}</div>`:''}
+        ${c.telefono? `<div>${c.telefono}</div>`:''}
         ${c.dni? `<div>DNI: ${c.dni}</div>`:''}
         ${c.direccion? `<div>${c.direccion}</div>`:''}
       </div>
@@ -483,6 +498,16 @@ function renderDocsList(){
   const list = document.getElementById('docs-list');
   if(!docsCache.length){ list.innerHTML = '<div class="empty">Todavía no hay presupuestos ni ventas cargadas.</div>'; return; }
   list.innerHTML = docsCache.map(d=>{
+    if(d.tipo==='pago'){
+      const monto = METODOS[d.metodo].moneda==='USD'?fmtUSD(d.monto):fmtARS(d.monto);
+      return `<div class="doc-card" style="cursor:default">
+        <div class="toprow">
+          <span class="tag-mini pago">Pago</span>
+          <span class="fecha">${fmtDate(d.fecha)}</span>
+        </div>
+        <div class="totales"><span>${METODOS[d.metodo].label}: ${monto}${d.cotizacion?` (cot. ${d.cotizacion})`:''}</span></div>
+      </div>`;
+    }
     let totales = '';
     if(d.tipo==='presupuesto'){
       let parts=[];
@@ -654,27 +679,65 @@ function openPagoModal(){
     `<option value="" selected disabled hidden>Método de pago</option>` +
     Object.keys(METODOS).map(k=>`<option value="${k}">${METODOS[k].label}</option>`).join('');
   document.getElementById('pago-monto-input').value = '';
+  document.getElementById('pago-cotizacion-input').value = '';
   openModal('modal-pago');
 }
 function savePago(){
   const docId = document.getElementById('pago-doc-select').value;
   const metodo = document.getElementById('pago-metodo-select').value;
   const monto = num(document.getElementById('pago-monto-input').value);
+  const cotizacion = num(document.getElementById('pago-cotizacion-input').value);
   if(!metodo){ alert('Falta método de pago'); return; }
   if(monto<=0){ alert('Ingresá un monto.'); return; }
   const d = docsCache.find(x=>x.id===docId);
-  const pagos = [...(d.pagos||[]), {metodo, monto}];
-  let pagadoARS = d.pagadoARS||0, pagadoUSD = d.pagadoUSD||0;
-  if(METODOS[metodo].moneda==='ARS') pagadoARS += monto; else pagadoUSD += monto;
+  const debtARS = d.aPagarARS||0, debtUSD = d.aPagarUSD||0;
+  const payMoneda = METODOS[metodo].moneda;
+
+  let addARS = 0, addUSD = 0;
+  if(payMoneda==='ARS'){
+    if(debtARS>0 || debtUSD<=0){ addARS = monto; }
+    else {
+      if(!cotizacion){ alert('Esta deuda es en dólares y estás pagando en pesos: ingresá la cotización usada.'); return; }
+      addUSD = Math.round(monto / cotizacion);
+    }
+  } else {
+    if(debtUSD>0 || debtARS<=0){ addUSD = monto; }
+    else {
+      if(!cotizacion){ alert('Esta deuda es en pesos y estás pagando en dólares: ingresá la cotización usada.'); return; }
+      addARS = Math.round(monto * cotizacion);
+    }
+  }
+
+  const pagos = [...(d.pagos||[]), {metodo, monto, ...(cotizacion?{cotizacion}:{})}];
+  const pagadoARS = (d.pagadoARS||0) + addARS;
+  const pagadoUSD = (d.pagadoUSD||0) + addUSD;
   const aPagarARS = Math.max(0, (d.totalARS||0) - pagadoARS);
   const aPagarUSD = Math.max(0, (d.totalUSD||0) - pagadoUSD);
-  db.collection('clientas').doc(currentClienteId).collection('documentos').doc(docId)
-    .update({pagos, pagadoARS, pagadoUSD, aPagarARS, aPagarUSD})
-    .then(()=>{
-      closeModal('modal-pago');
-      loadDocs();
-      setTimeout(()=>openPreviewById(docId), 250);
-    });
+  const fullySettled = aPagarARS<=0 && aPagarUSD<=0;
+  const fechaPago = todayISO();
+
+  const updateData = {pagos, pagadoARS, pagadoUSD, aPagarARS, aPagarUSD};
+  if(fullySettled){
+    updateData.saldado = true;
+    updateData.saldadoFecha = fechaPago;
+    updateData.saldadoMonto = monto;
+    updateData.saldadoMoneda = payMoneda;
+    updateData.saldadoMetodo = metodo;
+  }
+  const ventaRef = db.collection('clientas').doc(currentClienteId).collection('documentos').doc(docId);
+  const pagoRef = db.collection('clientas').doc(currentClienteId).collection('documentos').doc();
+  const batch = db.batch();
+  batch.update(ventaRef, updateData);
+  batch.set(pagoRef, {
+    tipo:'pago', fecha: fechaPago, metodo, monto, refVentaId: docId,
+    ...(cotizacion?{cotizacion}:{}),
+    clienteNombre: currentClienteData.nombre, clienteApellido: currentClienteData.apellido,
+    clienteTelefono: currentClienteData.telefono||'', createdAt: Date.now()
+  });
+  batch.commit().then(()=>{
+    closeModal('modal-pago');
+    loadDocs();
+  });
 }
 
 /* =================== PREVIEW / PDF =================== */
@@ -713,8 +776,13 @@ function renderPreview(d){
       const m = METODOS[p.metodo];
       rows += `<tr class="payrow"><td></td><td class="lbl"><b>Pago</b><span class="paren">(${m.paren})</span></td><td class="num">${m.moneda==='ARS'?fmtARS(p.monto):fmtUSD(p.monto)}</td></tr>`;
     });
-    if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
-    if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
+    if(d.saldado && d.aPagarARS<=0 && d.aPagarUSD<=0){
+      const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
+      rows += `<tr class="saldorow"><td></td><td class="lbl"><b>Saldado ${fmtDate(d.saldadoFecha)}</b><span class="paren">(${METODOS[d.saldadoMetodo].paren})</span></td><td class="num">${f(d.saldadoMonto)}</td></tr>`;
+    } else {
+      if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
+      if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
+    }
     totalsHTML = rows;
   }
 
@@ -817,6 +885,7 @@ function renderDeudasList(deudas){
   }).join('');
 }
 attachMoneyInput(document.getElementById('pago-monto-input'));
+attachMoneyInput(document.getElementById('pago-cotizacion-input'));
 </script>
 </body>
 </html>
