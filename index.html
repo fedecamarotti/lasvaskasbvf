@@ -875,22 +875,42 @@ function shareImage(){
 }
 
 /* =================== DEUDAS =================== */
+function fmtDateShort(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}`; }
 function openDeudas(){
   const deudoras = clientasCache.filter(c=>(c.deudaARS>0)||(c.deudaUSD>0));
-  renderDeudasList(deudoras);
-  showScreen('deudas');
+  if(!deudoras.length){ renderDeudasList([]); showScreen('deudas'); return; }
+  Promise.all(deudoras.map(c=>
+    db.collection('clientas').doc(c.id).collection('documentos').where('tipo','==','venta').get().then(snap=>{
+      const items = [];
+      snap.docs.forEach(doc=>{
+        const x = doc.data();
+        if((x.aPagarARS>0)||(x.aPagarUSD>0)){
+          items.push({clienteId:c.id, clienteNombre:c.nombre, clienteApellido:c.apellido,
+            clienteTelefono:c.telefono||'', fecha:x.fecha, aPagarARS:x.aPagarARS||0, aPagarUSD:x.aPagarUSD||0});
+        }
+      });
+      return items;
+    })
+  )).then(results=>{
+    const flat = results.flat().sort((a,b)=> (a.fecha||'') < (b.fecha||'') ? -1 : (a.fecha||'') > (b.fecha||'') ? 1 : 0);
+    renderDeudasList(flat);
+    showScreen('deudas');
+  });
 }
-function renderDeudasList(deudoras){
+function renderDeudasList(items){
   const list = document.getElementById('deudas-list');
-  if(!deudoras.length){ list.innerHTML = '<div class="empty">No hay deudoras con saldo pendiente 🎉</div>'; return; }
-  list.innerHTML = deudoras.map(c=>{
-    const debe = fmtDebtObj({ars:c.deudaARS||0, usd:c.deudaUSD||0});
-    return `<div class="card" onclick="openClienteDetail('${c.id}')">
+  if(!items.length){ list.innerHTML = '<div class="empty">No hay deudoras con saldo pendiente 🎉</div>'; return; }
+  list.innerHTML = items.map(it=>{
+    const debe = fmtDebtObj({ars:it.aPagarARS, usd:it.aPagarUSD});
+    return `<div class="card" onclick="openClienteDetail('${it.clienteId}')">
       <div>
-        <div class="name">${c.nombre} ${c.apellido}</div>
-        <div class="meta">${c.telefono||''}</div>
+        <div class="name">${it.clienteNombre} ${it.clienteApellido}</div>
+        <div class="meta">${it.clienteTelefono}</div>
       </div>
-      <div class="debe" style="font-weight:700;color:#e07a6b">${debe}</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="color:#ece7de;font-weight:400;font-size:13px">${fmtDateShort(it.fecha)}</span>
+        <span class="debe" style="font-weight:700;color:#e07a6b">${debe}</span>
+      </div>
     </div>`;
   }).join('');
 }
