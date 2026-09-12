@@ -59,7 +59,7 @@ label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacin
 .card .wa-link{color:#25D366;font-size:19px;margin-left:2px;flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;text-decoration:none}
 .card .wa-link:hover{background:#242424}
 .ch-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.ch-wa{color:#25D366;font-size:20px;text-decoration:none;flex-shrink:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid #2a2a2a}
+.ch-wa{color:#25D366;font-size:20px;text-decoration:none;flex-shrink:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid #2a2a2a;margin-top:6px}
 .ch-wa:hover{background:#242424}
 
 .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;background:#c9a86a;color:#141414;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.4);z-index:15}
@@ -345,6 +345,7 @@ function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById('screen-'+name).classList.remove('hidden');
+  window.scrollTo(0,0);
 }
 function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
 function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
@@ -435,7 +436,7 @@ function saveClienta(){
     dni: document.getElementById('clienta-dni').value.trim(),
     direccion: document.getElementById('clienta-direccion').value.trim()
   };
-  if(!data.nombre || !data.apellido){ alert('Nombre y apellido son obligatorios'); return; }
+  if(!data.nombre || !data.apellido || !data.telefono){ alert('Nombre, apellido y teléfono son obligatorios'); return; }
   const p = id ? db.collection('clientas').doc(id).update(data)
                : db.collection('clientas').add({...data, createdAt: Date.now()});
   p.then(()=>{
@@ -530,6 +531,10 @@ function renderDocsList(){
 
 /* =================== DOC MODAL (crear/editar) =================== */
 function openDocModal(tipo, existing){
+  if(tipo==='venta' && !existing && !(currentClienteData.dni||'').trim()){
+    alert('Falta cargar DNI en ficha de clienta');
+    return;
+  }
   editingDocTipo = tipo;
   document.getElementById('doc-id').value = existing? existing.id : '';
   document.getElementById('doc-tipo').value = tipo;
