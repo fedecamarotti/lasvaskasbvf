@@ -35,9 +35,13 @@ label{font-size:12px;color:#9c968b;display:block;margin-bottom:4px;letter-spacin
 #login-error{color:#e07a6b;font-size:13px;margin-top:10px;min-height:16px}
 
 /* ---------- HEADER ---------- */
-.topbar{position:sticky;top:0;z-index:20;background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.topbar{position:sticky;top:0;z-index:20;background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .topbar .brand{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
-.topbar .actions{display:flex;gap:8px;align-items:center}
+.topbar .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:520px){
+  .topbar .actions{width:100%;overflow-x:auto;flex-wrap:nowrap}
+  .chip-btn{white-space:nowrap;font-size:11.5px;padding:8px 11px}
+}
 .icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#242424;color:#ece7de}
 .icon-btn:hover{background:#2d2d2d}
 .chip-btn{background:#242424;color:#ece7de;border-radius:20px;padding:9px 14px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px}
@@ -148,6 +152,26 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
 .p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
 .preview-actions{display:flex;gap:10px;margin-top:16px}
 .preview-actions .btn{flex:1;text-align:center}
+
+/* ---------- PLANILLAS (Presupuestos / Ventas) ---------- */
+.sheet-monthbar{display:flex;align-items:center;justify-content:center;gap:18px;padding:12px;background:#1a1a1a;border-bottom:1px solid #2a2a2a}
+.sheet-month-label{font-family:'Cormorant Garamond',serif;font-size:19px;min-width:150px;text-align:center;text-transform:capitalize}
+.sheet-wrap{overflow-x:auto;padding:10px}
+table.sheet-table{border-collapse:collapse;width:100%;min-width:820px;font-size:12px}
+table.sheet-table thead th{background:#242424;color:#c9a86a;font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;padding:8px 6px;text-align:left;position:sticky;top:0}
+table.sheet-table tbody td{border-bottom:1px solid #232323;padding:4px 6px;vertical-align:top;color:#ece7de}
+table.sheet-table tbody tr.group-first td{border-top:1px solid #333}
+table.sheet-table td.vmid{vertical-align:middle;text-align:center}
+table.sheet-table td.notes-cell{color:#9c968b;font-style:italic;font-size:11px}
+table.sheet-table .sheet-empty{text-align:center;color:#777;padding:40px 10px}
+table.sheet-table td.plus-cell{text-align:center;vertical-align:middle}
+.sheet-plus{color:#c9a86a;width:24px;height:24px;border-radius:50%;border:1px solid #c9a86a;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+.metodo-chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.metodo-efvo{background:#1f3d28;color:#7bd694}
+.metodo-tarj{background:#3a2d54;color:#c7a6f2}
+.metodo-transf{background:#1f3350;color:#7aa8e8}
+.metodo-debe{background:#4a1f1f;color:#f08b8b}
+.costos-totals{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#c8c3ba}
 </style>
 </head>
 <body>
@@ -169,6 +193,8 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
   <div class="topbar">
     <div class="brand">LASVASKAS</div>
     <div class="actions">
+      <button class="chip-btn" onclick="openPresupuestosSheet()"><i class="fa-solid fa-file-lines"></i> Presupuestos</button>
+      <button class="chip-btn" onclick="openVentasSheet()"><i class="fa-solid fa-receipt"></i> Ventas</button>
       <button class="chip-btn" onclick="openDeudas()"><i class="fa-solid fa-hand-holding-dollar"></i> Deudoras<span id="deudas-count" class="debt-badge hidden">0</span></button>
       <button class="icon-btn" onclick="doLogout()" title="Salir"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
@@ -208,6 +234,61 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
   </div>
 </div>
 
+<!-- ============ PLANILLA: PRESUPUESTOS ============ -->
+<div id="screen-presu-sheet" class="screen hidden">
+  <div class="topbar">
+    <div class="brand" style="font-size:18px">Presupuestos</div>
+    <div class="actions"><button class="icon-btn" onclick="goBackToClientas()" title="Volver"><i class="fa-solid fa-arrow-left"></i></button></div>
+  </div>
+  <div class="sheet-monthbar">
+    <button class="icon-btn" onclick="shiftMonth('presu',-1)"><i class="fa-solid fa-chevron-left"></i></button>
+    <div id="presu-month-label" class="sheet-month-label"></div>
+    <button class="icon-btn" onclick="shiftMonth('presu',1)"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+  <div class="sheet-wrap">
+    <table class="sheet-table">
+      <thead><tr><th>Clienta</th><th>Fecha</th><th>Fecha evento</th><th>Celular</th><th>Producto</th><th>Valor $</th><th>Valor tarj.</th></tr></thead>
+      <tbody id="presu-sheet-body"><tr><td colspan="7" class="sheet-empty">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ PLANILLA: VENTAS ============ -->
+<div id="screen-venta-sheet" class="screen hidden">
+  <div class="topbar">
+    <div class="brand" style="font-size:18px">Ventas</div>
+    <div class="actions"><button class="icon-btn" onclick="goBackToClientas()" title="Volver"><i class="fa-solid fa-arrow-left"></i></button></div>
+  </div>
+  <div class="sheet-monthbar">
+    <button class="icon-btn" onclick="shiftMonth('venta',-1)"><i class="fa-solid fa-chevron-left"></i></button>
+    <div id="venta-month-label" class="sheet-month-label"></div>
+    <button class="icon-btn" onclick="shiftMonth('venta',1)"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+  <div class="sheet-wrap">
+    <table class="sheet-table">
+      <thead><tr><th>Código</th><th>Clienta</th><th>Fecha</th><th>P. Venta</th><th>F. Evento</th><th>Producto</th><th>Costos</th><th>Cant.</th><th>V. Unit.</th><th>Total</th><th>Método</th><th>DNI</th><th>Fact.</th><th>Celular</th></tr></thead>
+      <tbody id="venta-sheet-body"><tr><td colspan="14" class="sheet-empty">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ MODAL: COSTOS ============ -->
+<div id="modal-costos" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-costos')">✕</button>
+    <h2>Costos</h2>
+    <input type="hidden" id="costos-venta-id">
+    <input type="hidden" id="costos-cliente-id">
+    <div id="costos-container"></div>
+    <div class="add-row-btn" onclick="addCostoRow()"><i class="fa-solid fa-plus"></i> Agregar línea</div>
+    <div class="costos-totals">
+      <div>Total costos: <b id="costos-total-costos">$0</b></div>
+      <div>Total arreglos: <b id="costos-total-arreglos">0</b></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="saveCostos()">Guardar costos</button>
+  </div>
+</div>
+
 <!-- ============ MODAL: CLIENTA ============ -->
 <div id="modal-clienta" class="modal-overlay hidden">
   <div class="modal">
@@ -240,6 +321,20 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
     <div class="row2">
       <div class="field"><label>Fecha</label><input id="doc-fecha" type="date"></div>
       <div class="field"><label>Fecha evento</label><input id="doc-fechaevento" type="text" maxlength="14" placeholder="ej: 15/12/27"></div>
+    </div>
+    <div id="pventa-section" class="row2 hidden">
+      <div class="field"><label>Punto de venta</label>
+        <select id="doc-puntoventa">
+          <option value="Belgrano">Belgrano</option>
+          <option value="CC">CC</option>
+          <option value="Préstamo">Préstamo</option>
+          <option value="Venta por señar">Venta por señar</option>
+          <option value="Salda deuda">Salda deuda</option>
+        </select>
+      </div>
+      <div class="field"><label>Factura</label>
+        <select id="doc-factura"><option value="No">No</option><option value="Sí">Sí</option></select>
+      </div>
     </div>
     <div class="section-label">Productos</div>
     <div id="productos-container"></div>
@@ -536,6 +631,7 @@ function openDocModal(tipo, existing){
     return;
   }
   editingDocTipo = tipo;
+  editingExistingCodigo = existing? (existing.codigo!==undefined? existing.codigo : null) : null;
   document.getElementById('doc-id').value = existing? existing.id : '';
   document.getElementById('doc-tipo').value = tipo;
   document.getElementById('doc-fecha').value = existing? existing.fecha : todayISO();
@@ -543,6 +639,11 @@ function openDocModal(tipo, existing){
   document.getElementById('doc-notas').value = existing? (existing.notas||'') : '';
   document.getElementById('doc-modal-title').textContent = (existing?'Editar ':'Nuevo ') + (tipo==='presupuesto'?'presupuesto':'recibo de venta');
   document.getElementById('pagos-section').classList.toggle('hidden', tipo!=='venta');
+  document.getElementById('pventa-section').classList.toggle('hidden', tipo!=='venta');
+  if(tipo==='venta'){
+    document.getElementById('doc-puntoventa').value = existing? (existing.puntoVenta||'Belgrano') : 'Belgrano';
+    document.getElementById('doc-factura').value = existing? (existing.factura||'No') : 'No';
+  }
   document.getElementById('doc-delete-row').classList.toggle('hidden', !existing);
 
   document.getElementById('productos-container').innerHTML='';
@@ -577,12 +678,27 @@ function addProductoRow(p){
     });
   } else {
     row.innerHTML = `
-      <div class="field" style="flex:2"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
-      <div class="field" style="flex:0 0 58px"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
-      <div class="field" style="flex:1"><input class="pd-valor" placeholder="Valor" value="${fmtMoney(p.valor)}"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;gap:8px">
+          <div class="field" style="flex:2"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
+          <div class="field" style="flex:0 0 58px"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="field" style="flex:1"><input class="pd-cant" placeholder="Cant." value="${p.cant||''}"></div>
+          <div class="field" style="flex:1.3"><input class="pd-valorunit" placeholder="V. unitario" value="${fmtMoney(p.valorUnit)}"></div>
+          <div class="field" style="flex:1.3"><input class="pd-total" placeholder="Total" value="${fmtMoney(p.total)}" readonly style="opacity:.65"></div>
+        </div>
+      </div>
       <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
     cont.appendChild(row);
-    attachMoneyInput(row.querySelector('.pd-valor'));
+    const cantInput = row.querySelector('.pd-cant'), vuInput = row.querySelector('.pd-valorunit'), totalInput = row.querySelector('.pd-total');
+    attachMoneyInput(vuInput);
+    function recalcTotal(){
+      const c = num(cantInput.value)||0, vu = num(vuInput.value)||0;
+      totalInput.value = (c*vu)? Math.round(c*vu).toLocaleString('es-AR') : '';
+    }
+    cantInput.addEventListener('input', recalcTotal);
+    vuInput.addEventListener('input', recalcTotal);
   }
 }
 function addPagoRow(p){
@@ -598,6 +714,26 @@ function addPagoRow(p){
     <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
   cont.appendChild(row);
   attachMoneyInput(row.querySelector('.pg-monto'));
+}
+function nextCodigo(){
+  const mm = String(new Date().getMonth()+1).padStart(2,'0');
+  const counterRef = db.collection('meta').doc('codigos');
+  return db.runTransaction(tx=>{
+    return tx.get(counterRef).then(doc=>{
+      const data = doc.exists? doc.data() : {};
+      const next = (data[mm]||0) + 1;
+      tx.set(counterRef, {...data, [mm]: next}, {merge:true});
+      return mm + String(next).padStart(2,'0');
+    });
+  });
+}
+function syncGlobalDoc(tipo, docId, data){
+  const coll = tipo==='presupuesto' ? 'presupuestos' : 'ventas';
+  return db.collection(coll).doc(docId).set({...data, clienteId: currentClienteId, docId}, {merge:false});
+}
+function deleteGlobalDoc(tipo, docId){
+  const coll = tipo==='presupuesto' ? 'presupuestos' : 'ventas';
+  return db.collection(coll).doc(docId).delete().catch(()=>{});
 }
 function saveDoc(){
   const tipo = document.getElementById('doc-tipo').value;
@@ -618,21 +754,26 @@ function saveDoc(){
       if(moneda==='ARS'){ totalEfvoARS += efvo; totalTarjARS += tarj; }
       else { totalEfvoUSD += efvo; totalTarjUSD += tarj; }
     } else {
-      const valor = num(row.querySelector('.pd-valor').value);
-      productos.push({desc, moneda, valor});
-      if(moneda==='ARS') totalARS += valor; else totalUSD += valor;
+      const cant = num(row.querySelector('.pd-cant').value)||0;
+      const valorUnit = num(row.querySelector('.pd-valorunit').value)||0;
+      const total = cant*valorUnit;
+      productos.push({desc, moneda, cant, valorUnit, total});
+      if(moneda==='ARS') totalARS += total; else totalUSD += total;
     }
   });
   if(!productos.length){ alert('Agregá al menos un producto con descripción.'); return; }
 
   let data = {tipo, fecha, fechaEvento, notas, productos,
     clienteNombre: currentClienteData.nombre, clienteApellido: currentClienteData.apellido,
-    clienteTelefono: currentClienteData.telefono||''};
+    clienteTelefono: currentClienteData.telefono||'', clienteDni: currentClienteData.dni||''};
 
   if(tipo==='presupuesto'){
     data.totalEfvoARS = totalEfvoARS; data.totalTarjARS = totalTarjARS;
     data.totalEfvoUSD = totalEfvoUSD; data.totalTarjUSD = totalTarjUSD;
   } else {
+    const puntoVenta = document.getElementById('doc-puntoventa').value;
+    const factura = document.getElementById('doc-factura').value;
+    data.puntoVenta = puntoVenta; data.factura = factura;
     let pagos=[], pagadoARS=0, pagadoUSD=0, pagoError=false;
     document.querySelectorAll('#pagos-container .pago-row').forEach(row=>{
       const metodo = row.querySelector('.pg-metodo').value;
@@ -647,26 +788,43 @@ function saveDoc(){
     data.pagadoARS = pagadoARS; data.pagadoUSD = pagadoUSD;
     data.aPagarARS = Math.max(0, totalARS - pagadoARS);
     data.aPagarUSD = Math.max(0, totalUSD - pagadoUSD);
+    if(existingDocHasCodigo(id)){ data.codigo = editingExistingCodigo; }
   }
 
   const ref = db.collection('clientas').doc(currentClienteId).collection('documentos');
-  const p = id ? ref.doc(id).update(data) : ref.add({...data, createdAt: Date.now()});
-  p.then((res)=>{
-    closeModal('modal-doc');
-    const savedId = id || res.id;
-    if(tipo==='venta'){
-      recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
+  const proceed = (codigo)=>{
+    if(tipo==='venta' && codigo!==undefined) data.codigo = codigo;
+    const p = id ? ref.doc(id).update(data) : ref.add({...data, createdAt: Date.now()});
+    p.then((res)=>{
+      const savedId = id || res.id;
+      syncGlobalDoc(tipo, savedId, {...data, id: savedId, createdAt: Date.now()});
+      closeModal('modal-doc');
+      if(tipo==='venta'){
+        recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
+      } else {
+        loadDocs();
+      }
+      setTimeout(()=>openPreviewById(savedId), 250);
+    });
+  };
+  if(tipo==='venta' && !id){
+    if(data.puntoVenta==='Belgrano' || data.puntoVenta==='Venta por señar'){
+      nextCodigo().then(proceed);
     } else {
-      loadDocs();
+      proceed('-');
     }
-    setTimeout(()=>openPreviewById(savedId), 250);
-  });
+  } else {
+    proceed();
+  }
 }
+let editingExistingCodigo = null;
+function existingDocHasCodigo(id){ return !!id && editingExistingCodigo!=null; }
 function deleteDoc(){
   const id = document.getElementById('doc-id').value;
   const tipo = document.getElementById('doc-tipo').value;
   if(!id || !confirm('¿Eliminar este documento?')) return;
   db.collection('clientas').doc(currentClienteId).collection('documentos').doc(id).delete().then(()=>{
+    deleteGlobalDoc(tipo, id);
     closeModal('modal-doc');
     closeModal('modal-preview');
     if(tipo==='venta'){
@@ -748,6 +906,7 @@ function savePago(){
     clienteTelefono: currentClienteData.telefono||'', createdAt: Date.now()
   });
   batch.commit().then(()=>{
+    db.collection('ventas').doc(docId).update(updateData).catch(()=>{});
     closeModal('modal-pago');
     recomputeClienteDeuda(currentClienteId).then(()=>{ loadClientas(); loadDocs(); });
   });
@@ -916,6 +1075,205 @@ function renderDeudasList(items){
 }
 attachMoneyInput(document.getElementById('pago-monto-input'));
 attachMoneyInput(document.getElementById('pago-cotizacion-input'));
+
+/* =================== COSTOS =================== */
+function addCostoRow(c){
+  c = c||{};
+  const cont = document.getElementById('costos-container');
+  const row = document.createElement('div');
+  row.className='costo-row';
+  row.style.cssText='display:flex;gap:8px;margin-bottom:10px;align-items:flex-start';
+  row.innerHTML = `
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;gap:8px">
+        <div class="field" style="flex:1"><select class="co-tipo">
+          <option value="Avíos" ${c.tipo==='Avíos'?'selected':''}>Avíos</option>
+          <option value="Telas" ${c.tipo==='Telas'?'selected':''}>Telas</option>
+          <option value="Rufina nuevo" ${c.tipo==='Rufina nuevo'?'selected':''}>Rufina nuevo</option>
+          <option value="Rufina arreglos" ${c.tipo==='Rufina arreglos'?'selected':''}>Rufina arreglos</option>
+        </select></div>
+        <div class="field" style="flex:1.4"><input class="co-detalle" placeholder="Detalle" value="${c.detalle||''}"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="field" style="flex:1"><input class="co-cant" placeholder="Cant." value="${c.cant||''}"></div>
+        <div class="field co-valor-field" style="flex:1"><input class="co-valor" placeholder="$" value="${fmtMoney(c.valor)}"></div>
+        <div class="field" style="flex:1"><input class="co-total" placeholder="Total" value="${fmtMoney(c.total)}" readonly style="opacity:.65"></div>
+      </div>
+    </div>
+    <div class="rm-row" style="margin-top:6px">✕</div>`;
+  cont.appendChild(row);
+  const tipoSel=row.querySelector('.co-tipo'), cantInput=row.querySelector('.co-cant'),
+        valorInput=row.querySelector('.co-valor'), totalInput=row.querySelector('.co-total'),
+        valorField=row.querySelector('.co-valor-field');
+  attachMoneyInput(valorInput);
+  function recalc(){
+    const cant = num(cantInput.value)||0;
+    if(tipoSel.value==='Rufina arreglos'){
+      valorField.style.display = 'none';
+      totalInput.value = cant? cant.toLocaleString('es-AR') : '';
+    } else {
+      valorField.style.display = '';
+      const valor = num(valorInput.value)||0;
+      totalInput.value = (cant*valor)? Math.round(cant*valor).toLocaleString('es-AR') : '';
+    }
+    recalcCostosTotals();
+  }
+  tipoSel.addEventListener('change', recalc);
+  cantInput.addEventListener('input', recalc);
+  valorInput.addEventListener('input', recalc);
+  row.querySelector('.rm-row').addEventListener('click', ()=>{ row.remove(); recalcCostosTotals(); });
+  recalc();
+}
+function recalcCostosTotals(){
+  let totalCostos=0, totalArreglos=0;
+  document.querySelectorAll('#costos-container .costo-row').forEach(row=>{
+    const tipo = row.querySelector('.co-tipo').value;
+    const cant = num(row.querySelector('.co-cant').value)||0;
+    if(tipo==='Rufina arreglos'){ totalArreglos += cant; }
+    else { const valor = num(row.querySelector('.co-valor').value)||0; totalCostos += cant*valor; }
+  });
+  document.getElementById('costos-total-costos').textContent = fmtARS(totalCostos);
+  document.getElementById('costos-total-arreglos').textContent = totalArreglos;
+}
+function openCostosModal(clienteId, ventaId, existingCostos){
+  document.getElementById('costos-cliente-id').value = clienteId;
+  document.getElementById('costos-venta-id').value = ventaId;
+  document.getElementById('costos-container').innerHTML='';
+  (existingCostos&&existingCostos.length? existingCostos : [{}]).forEach(c=>addCostoRow(c));
+  recalcCostosTotals();
+  openModal('modal-costos');
+}
+function saveCostos(){
+  const clienteId = document.getElementById('costos-cliente-id').value;
+  const ventaId = document.getElementById('costos-venta-id').value;
+  let costos = [];
+  document.querySelectorAll('#costos-container .costo-row').forEach(row=>{
+    const tipo = row.querySelector('.co-tipo').value;
+    const detalle = row.querySelector('.co-detalle').value.trim();
+    const cant = num(row.querySelector('.co-cant').value)||0;
+    if(!cant) return;
+    if(tipo==='Rufina arreglos'){ costos.push({tipo, detalle, cant, valor:0, total:cant}); }
+    else { const valor = num(row.querySelector('.co-valor').value)||0; costos.push({tipo, detalle, cant, valor, total:cant*valor}); }
+  });
+  db.collection('clientas').doc(clienteId).collection('documentos').doc(ventaId).update({costos}).then(()=>{
+    db.collection('ventas').doc(ventaId).update({costos}).catch(()=>{});
+    closeModal('modal-costos');
+    if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
+    if(currentClienteId===clienteId) loadDocs();
+  });
+}
+
+/* =================== PLANILLAS ("Ummana style") =================== */
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+let presuMonth = new Date(); presuMonth.setDate(1);
+let ventaMonth = new Date(); ventaMonth.setDate(1);
+function monthLabel(d){ return `${MESES[d.getMonth()]} ${d.getFullYear()}`; }
+function monthRange(d){
+  const y=d.getFullYear(), m=d.getMonth();
+  const start = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const lastDay = new Date(y, m+1, 0).getDate();
+  const end = `${y}-${String(m+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  return {start, end};
+}
+function shiftMonth(which, delta){
+  if(which==='presu'){ presuMonth.setMonth(presuMonth.getMonth()+delta); openPresupuestosSheet(); }
+  else { ventaMonth.setMonth(ventaMonth.getMonth()+delta); openVentasSheet(); }
+}
+function openPresupuestosSheet(){
+  document.getElementById('presu-month-label').textContent = monthLabel(presuMonth);
+  showScreen('presu-sheet');
+  const {start,end} = monthRange(presuMonth);
+  const body = document.getElementById('presu-sheet-body');
+  body.innerHTML = '<tr><td colspan="7" class="sheet-empty">Cargando...</td></tr>';
+  db.collection('presupuestos').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
+    renderPresuSheet(snap.docs.map(d=>({id:d.id,...d.data()})));
+  }).catch(err=>{
+    console.error(err);
+    body.innerHTML = '<tr><td colspan="7" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
+  });
+}
+function renderPresuSheet(docs){
+  const body = document.getElementById('presu-sheet-body');
+  if(!docs.length){ body.innerHTML = '<tr><td colspan="7" class="sheet-empty">Sin presupuestos este mes.</td></tr>'; return; }
+  let html = '';
+  docs.forEach(d=>{
+    const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
+    (d.productos||[]).forEach((p,i)=>{
+      const f = p.moneda==='USD'?fmtUSD:fmtARS;
+      html += `<tr class="${i===0?'group-first':''}">`;
+      if(i===0){
+        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteNombre} ${d.clienteApellido}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${fmtDate(d.fecha)}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteTelefono||''}</td>`;
+      }
+      html += `<td>${p.desc}</td><td>${f(p.efvo)}</td><td>${f(p.tarj)}</td></tr>`;
+    });
+    if(d.notas) html += `<tr><td colspan="3" class="notes-cell">${d.notas}</td></tr>`;
+  });
+  body.innerHTML = html;
+}
+function openVentasSheet(){
+  document.getElementById('venta-month-label').textContent = monthLabel(ventaMonth);
+  showScreen('venta-sheet');
+  const {start,end} = monthRange(ventaMonth);
+  const body = document.getElementById('venta-sheet-body');
+  body.innerHTML = '<tr><td colspan="14" class="sheet-empty">Cargando...</td></tr>';
+  db.collection('ventas').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
+    renderVentaSheet(snap.docs.map(d=>({id:d.id,...d.data()})));
+  }).catch(err=>{
+    console.error(err);
+    body.innerHTML = '<tr><td colspan="14" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
+  });
+}
+function ventaMetodoCellHTML(d){
+  if(d.saldado && (d.aPagarARS||0)<=0 && (d.aPagarUSD||0)<=0){
+    const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
+    return `<span style="color:#7bd694">Pagó ${f(d.saldadoMonto)}<br>el ${fmtDateShort(d.saldadoFecha)}</span>`;
+  }
+  if((d.aPagarARS||0)>0 || (d.aPagarUSD||0)>0){
+    const debe = fmtDebtObj({ars:d.aPagarARS||0, usd:d.aPagarUSD||0});
+    return `<span class="metodo-chip metodo-debe">Debe ${debe}</span>`;
+  }
+  const classes = {EFVO_ARS:'metodo-efvo',EFVO_USD:'metodo-efvo',TRBF:'metodo-transf',TRVF:'metodo-transf',TARJ:'metodo-tarj'};
+  const uniq = [...new Set((d.pagos||[]).map(p=>p.metodo))];
+  if(!uniq.length) return '';
+  return uniq.map(m=>`<span class="metodo-chip ${classes[m]||''}">${METODOS[m].label}</span>`).join(' ');
+}
+function renderVentaSheet(docs){
+  const body = document.getElementById('venta-sheet-body');
+  if(!docs.length){ body.innerHTML = '<tr><td colspan="14" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
+  let html = '';
+  docs.forEach(d=>{
+    const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
+    let totalTxt = [d.totalARS?fmtARS(d.totalARS):'', d.totalUSD?fmtUSD(d.totalUSD):''].filter(Boolean).join('<br>');
+    (d.productos||[]).forEach((p,i)=>{
+      html += `<tr class="${i===0?'group-first':''}">`;
+      if(i===0){
+        html += `<td class="vmid" rowspan="${rowspan}">${d.codigo||'-'}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteNombre} ${d.clienteApellido}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${fmtDate(d.fecha)}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.puntoVenta||''}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
+      }
+      html += `<td>${p.desc}</td>`;
+      if(i===0){
+        html += `<td class="vmid plus-cell" rowspan="${rowspan}"><span class="sheet-plus" onclick="openCostosModal('${d.clienteId}','${d.id}', ${JSON.stringify(d.costos||[]).replace(/"/g,'&quot;')})">+</span></td>`;
+      }
+      html += `<td>${p.cant||''}</td><td>${p.valorUnit?fmtARS(p.valorUnit):''}</td>`;
+      if(i===0){
+        html += `<td class="vmid" rowspan="${rowspan}">${totalTxt}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${ventaMetodoCellHTML(d)}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteDni||''}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.factura||'No'}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteTelefono||''}</td>`;
+      }
+      html += `</tr>`;
+    });
+    if(d.notas) html += `<tr><td colspan="3" class="notes-cell">${d.notas}</td></tr>`;
+  });
+  body.innerHTML = html;
+}
 </script>
 </body>
 </html>
