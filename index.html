@@ -156,7 +156,8 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
 /* ---------- PLANILLAS (Presupuestos / Ventas) ---------- */
 .sheet-monthbar{display:flex;align-items:center;justify-content:center;gap:18px;padding:12px;background:#fff;border-bottom:1px solid #ece6d8;font-family:'Montserrat',sans-serif}
 .sheet-month-label{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;min-width:150px;text-align:center;text-transform:capitalize;color:#3a352c}
-.sheet-wrap{overflow-x:auto;padding:10px}
+.sheet-wrap{overflow-x:auto;padding:10px;display:flex;justify-content:center}
+table.sheet-table{margin:0 auto}
 table.sheet-table{border-collapse:collapse;table-layout:fixed;font-size:11.5px;background:#fff;font-family:'Montserrat',sans-serif}
 table.sheet-table thead th{background:#f2eee3;color:#a8823f;font-size:9.5px;letter-spacing:.02em;text-transform:uppercase;padding:7px 4px;text-align:center;position:sticky;top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 table.sheet-table tbody td{border-bottom:1px solid #f0ece2;padding:5px 4px;vertical-align:middle;color:#3a352c;text-align:center;overflow:hidden;text-overflow:ellipsis}
@@ -165,7 +166,10 @@ table.sheet-table td.vmid{vertical-align:middle;text-align:center}
 table.sheet-table td.notes-cell{color:#9a9285;font-style:italic;font-size:10.5px;text-align:left;padding-left:10px}
 table.sheet-table .sheet-empty{text-align:center;color:#a49c8c;padding:40px 10px}
 table.sheet-table td.plus-cell{text-align:center;vertical-align:middle;padding:3px}
-.sheet-plus{color:#a8823f;width:20px;height:20px;border-radius:4px;border:1px solid #c9a86a;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#faf6ee}
+.sheet-plus{color:#a8823f;width:20px;height:20px;border-radius:4px;border:1px solid #c9a86a;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#faf6ee;cursor:pointer;user-select:none;transition:background .1s,transform .1s}
+.sheet-plus:hover{background:#f0e6d0}
+.sheet-plus:active{transform:scale(0.9);background:#e9dcc0}
+.sheet-pencil,.sheet-authorize{cursor:pointer}
 .sheet-pencil{color:#a8823f;cursor:pointer;font-size:11px}
 td.edit-cell{width:26px}
 .sheet-inline-input{width:100%;text-align:center;padding:3px 2px;font-size:11px}
@@ -176,6 +180,11 @@ td.edit-cell{width:26px}
 .metodo-transf{background:#e3eaf7;color:#3f5f96}
 .metodo-debe{background:#fbe4e1;color:#a13f38}
 .costos-totals{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#8a8375}
+table.sheet-table tbody tr.pending-row td{background:#fdf6e6}
+.sheet-authorize{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#4f8f68;color:#fff;font-size:11px;font-weight:700;cursor:pointer;margin-top:4px}
+body.role-limited #venta-table th:nth-child(8),
+body.role-limited #venta-table td:nth-child(8),
+body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 </style>
 </head>
 <body>
@@ -197,8 +206,8 @@ td.edit-cell{width:26px}
   <div class="topbar">
     <div class="brand">LASVASKAS</div>
     <div class="actions">
-      <button class="chip-btn" onclick="openPresupuestosSheet()"><i class="fa-solid fa-file-lines"></i> Presupuestos</button>
-      <button class="chip-btn" onclick="openVentasSheet()"><i class="fa-solid fa-receipt"></i> Ventas</button>
+      <button id="btn-presu-sheet" class="chip-btn hidden" onclick="openPresupuestosSheet()"><i class="fa-solid fa-file-lines"></i> Presupuestos</button>
+      <button id="btn-venta-sheet" class="chip-btn hidden" onclick="openVentasSheet()"><i class="fa-solid fa-receipt"></i> Ventas</button>
       <button class="chip-btn" onclick="openDeudas()"><i class="fa-solid fa-hand-holding-dollar"></i> Deudoras<span id="deudas-count" class="debt-badge hidden">0</span></button>
       <button class="icon-btn" onclick="doLogout()" title="Salir"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
@@ -252,7 +261,7 @@ td.edit-cell{width:26px}
   <div class="sheet-wrap">
     <table class="sheet-table" id="presu-table">
       <colgroup>
-        <col style="width:26px"><col style="width:130px"><col style="width:44px"><col style="width:80px"><col style="width:95px"><col style="width:220px"><col style="width:80px"><col style="width:80px">
+        <col style="width:26px"><col style="width:130px"><col style="width:44px"><col style="width:80px"><col style="width:95px"><col style="width:440px"><col style="width:80px"><col style="width:80px">
       </colgroup>
       <thead><tr><th></th><th>Clienta</th><th>Fecha</th><th>Fecha evento</th><th>Celular</th><th>Producto</th><th>Valor $</th><th>Valor tarj.</th></tr></thead>
       <tbody id="presu-sheet-body"><tr><td colspan="8" class="sheet-empty">Cargando...</td></tr></tbody>
@@ -274,7 +283,7 @@ td.edit-cell{width:26px}
   <div class="sheet-wrap">
     <table class="sheet-table" id="venta-table">
       <colgroup>
-        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:40px"><col style="width:82px"><col style="width:78px"><col style="width:210px"><col style="width:32px"><col style="width:36px"><col style="width:72px"><col style="width:78px"><col style="width:120px"><col style="width:72px"><col style="width:72px"><col style="width:88px">
+        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:40px"><col style="width:82px"><col style="width:78px"><col style="width:420px"><col style="width:32px"><col style="width:36px"><col style="width:72px"><col style="width:78px"><col style="width:120px"><col style="width:72px"><col style="width:72px"><col style="width:88px">
       </colgroup>
       <thead><tr><th></th><th>Código</th><th>Clienta</th><th>Fecha</th><th>P. Venta</th><th>F. Evento</th><th>Producto</th><th>Costos</th><th>Cant.</th><th>Valor</th><th>Total</th><th>Método</th><th>DNI</th><th>Fact.</th><th>Celular</th></tr></thead>
       <tbody id="venta-sheet-body"><tr><td colspan="15" class="sheet-empty">Cargando...</td></tr></tbody>
@@ -428,6 +437,8 @@ let currentClienteData = null;
 let docsCache = [];
 let currentDocForPreview = null;
 let editingDocTipo = null;
+let currentUserRole = null;
+let currentUserUid = null;
 
 /* =================== HELPERS =================== */
 function num(v){ const digits = String(v||'').replace(/[^\d]/g,''); return digits? parseInt(digits,10) : 0; }
@@ -468,8 +479,25 @@ function doLogin(){
 }
 function doLogout(){ auth.signOut(); }
 auth.onAuthStateChanged(user=>{
-  if(user){ showScreen('clientas'); loadClientas(); }
-  else{ showScreen('login'); }
+  if(user){
+    currentUserUid = user.uid;
+    db.collection('usuarios').doc(user.uid).get().then(doc=>{
+      currentUserRole = doc.exists? (doc.data().rol||'limited') : 'limited';
+      document.body.classList.toggle('role-limited', currentUserRole==='limited');
+      document.getElementById('btn-presu-sheet').classList.toggle('hidden', currentUserRole!=='admin');
+      document.getElementById('btn-venta-sheet').classList.toggle('hidden', currentUserRole!=='admin');
+      showScreen('clientas');
+      loadClientas();
+    }).catch(()=>{
+      currentUserRole = 'limited';
+      document.body.classList.add('role-limited');
+      showScreen('clientas');
+      loadClientas();
+    });
+  } else {
+    currentUserRole = null; currentUserUid = null;
+    showScreen('login');
+  }
 });
 
 /* =================== CLIENTAS =================== */
@@ -826,6 +854,10 @@ function saveDoc(){
   let data = {tipo, fecha, fechaEvento, notas, productos,
     clienteNombre: currentClienteData.nombre, clienteApellido: currentClienteData.apellido,
     clienteTelefono: currentClienteData.telefono||'', clienteDni: currentClienteData.dni||''};
+  if(!id){
+    data.autorizado = (currentUserRole==='admin');
+    data.creadoPor = auth.currentUser? auth.currentUser.email : '';
+  }
 
   if(tipo==='presupuesto'){
     data.totalEfvoARS = totalEfvoARS; data.totalTarjARS = totalTarjARS;
@@ -1243,16 +1275,26 @@ function shiftMonth(which, delta){
   else { ventaMonth.setMonth(ventaMonth.getMonth()+delta); openVentasSheet(); }
 }
 function openPresupuestosSheet(){
+  if(currentUserRole!=='admin') return;
   document.getElementById('presu-month-label').textContent = monthLabel(presuMonth);
   showScreen('presu-sheet');
   const {start,end} = monthRange(presuMonth);
   const body = document.getElementById('presu-sheet-body');
   body.innerHTML = '<tr><td colspan="8" class="sheet-empty">Cargando...</td></tr>';
   db.collection('presupuestos').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
-    renderPresuSheet(snap.docs.map(d=>({id:d.id,...d.data()})));
+    let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentUserRole!=='admin') docs = docs.filter(d=>d.autorizado!==false);
+    renderPresuSheet(docs);
   }).catch(err=>{
     console.error(err);
     body.innerHTML = '<tr><td colspan="8" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
+  });
+}
+function authorizeDoc(tipo, clienteId, docId){
+  const upd = {autorizado:true};
+  db.collection('clientas').doc(clienteId).collection('documentos').doc(docId).update(upd).then(()=>{
+    db.collection(tipo==='presupuesto'?'presupuestos':'ventas').doc(docId).update(upd).catch(()=>{});
+    if(tipo==='presupuesto') openPresupuestosSheet(); else openVentasSheet();
   });
 }
 function renderPresuSheet(docs){
@@ -1260,31 +1302,38 @@ function renderPresuSheet(docs){
   if(!docs.length){ body.innerHTML = '<tr><td colspan="8" class="sheet-empty">Sin presupuestos este mes.</td></tr>'; return; }
   let html = '';
   docs.forEach(d=>{
+    const pendiente = d.autorizado===false;
     const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
     (d.productos||[]).forEach((p,i)=>{
       const f = p.moneda==='USD'?fmtUSD:fmtARS;
-      html += `<tr class="${i===0?'group-first':''}">`;
+      html += `<tr class="${i===0?'group-first':''} ${pendiente?'pending-row':''}">`;
       if(i===0){
-        html += `<td class="vmid edit-cell" rowspan="${rowspan}"><span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','presupuesto')"><i class="fa-solid fa-pen"></i></span></td>`;
-        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteNombre} ${d.clienteApellido}</td>`;
+        html += `<td class="vmid edit-cell" rowspan="${rowspan}">
+          <span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','presupuesto')"><i class="fa-solid fa-pen"></i></span>
+          ${pendiente? `<span class="sheet-authorize" onclick="authorizeDoc('presupuesto','${d.clienteId}','${d.id}')" title="Autorizar">✓</span>` : ''}
+        </td>`;
+        html += `<td class="vmid" rowspan="${rowspan}"><b>${d.clienteNombre} ${d.clienteApellido}</b></td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${fmtDateSheet(d.fecha)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.clienteTelefono||''}</td>`;
       }
       html += `<td>${p.desc}</td><td>${f(p.efvo)}</td><td>${f(p.tarj)}</td></tr>`;
     });
-    if(d.notas) html += `<tr><td colspan="3" class="notes-cell">${d.notas}</td></tr>`;
+    if(d.notas) html += `<tr class="${pendiente?'pending-row':''}"><td colspan="3" class="notes-cell">${d.notas}</td></tr>`;
   });
   body.innerHTML = html;
 }
 function openVentasSheet(){
+  if(currentUserRole!=='admin') return;
   document.getElementById('venta-month-label').textContent = monthLabel(ventaMonth);
   showScreen('venta-sheet');
   const {start,end} = monthRange(ventaMonth);
   const body = document.getElementById('venta-sheet-body');
   body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Cargando...</td></tr>';
   db.collection('ventas').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
-    renderVentaSheet(snap.docs.map(d=>({id:d.id,...d.data()})));
+    let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentUserRole!=='admin') docs = docs.filter(d=>d.autorizado!==false);
+    renderVentaSheet(docs);
   }).catch(err=>{
     console.error(err);
     body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
@@ -1314,14 +1363,18 @@ function renderVentaSheet(docs){
   if(!docs.length){ body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
   let html = '';
   docs.forEach(d=>{
+    const pendiente = d.autorizado===false;
     const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
     let totalTxt = [d.totalARS?fmtARS(d.totalARS):'', d.totalUSD?fmtUSD(d.totalUSD):''].filter(Boolean).join('<br>');
     (d.productos||[]).forEach((p,i)=>{
-      html += `<tr class="${i===0?'group-first':''}">`;
+      html += `<tr class="${i===0?'group-first':''} ${pendiente?'pending-row':''}">`;
       if(i===0){
-        html += `<td class="vmid edit-cell" rowspan="${rowspan}"><span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','venta')"><i class="fa-solid fa-pen"></i></span></td>`;
+        html += `<td class="vmid edit-cell" rowspan="${rowspan}">
+          <span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','venta')"><i class="fa-solid fa-pen"></i></span>
+          ${pendiente? `<span class="sheet-authorize" onclick="authorizeDoc('venta','${d.clienteId}','${d.id}')" title="Autorizar">✓</span>` : ''}
+        </td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.codigo||'-'}</td>`;
-        html += `<td class="vmid" rowspan="${rowspan}">${d.clienteNombre} ${d.clienteApellido}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}"><b>${d.clienteNombre} ${d.clienteApellido}</b></td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${fmtDateSheet(d.fecha)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.puntoVenta||''}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
@@ -1339,7 +1392,7 @@ function renderVentaSheet(docs){
       }
       html += `</tr>`;
     });
-    if(d.notas) html += `<tr><td colspan="4" class="notes-cell">${d.notas}</td></tr>`;
+    if(d.notas) html += `<tr class="${pendiente?'pending-row':''}"><td colspan="4" class="notes-cell">${d.notas}</td></tr>`;
   });
   body.innerHTML = html;
 }
