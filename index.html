@@ -133,23 +133,24 @@ label{font-size:12px;color:#9a9285;display:block;margin-bottom:4px;letter-spacin
 .p-clientrow label{white-space:nowrap;margin-right:4px;color:#2b2b2b;font-size:11px}
 .p-clientrow .line{border-bottom:1px dotted #999;flex:1;min-width:0;overflow-wrap:break-word}
 table.p-detail{width:100%;border-collapse:collapse;margin-top:16px;font-family:'Jost',sans-serif;table-layout:fixed}
-table.p-detail col.c2,table.p-detail col.c3{width:64px}
+table.p-detail col.c2{width:64px}
+table.p-detail col.c3{width:92px}
 table.p-detail thead th{background:#3d3d3d;color:#fff;text-align:left;font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;padding:6px 5px;font-weight:600}
 table.p-detail thead th.num{text-align:right}
 table.p-detail tbody td{padding:7px 5px;font-size:11.5px;border-bottom:1px dotted #ccc;vertical-align:top;word-wrap:break-word}
-table.p-detail tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.p-detail tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 table.p-detail tbody tr.notesrow td{font-size:10.5px;color:#555;font-style:italic;padding-top:10px}
 table.p-detail tfoot td{padding:3px 5px;font-size:11.5px}
 table.p-detail tfoot tr.rule td{padding:0;border-top:2px solid #2b2b2b}
 table.p-detail tfoot tr.totalrow td{font-weight:700}
-table.p-detail tfoot tr.totalrow td.num{text-align:right}
+table.p-detail tfoot tr.totalrow td.num{text-align:right;white-space:nowrap}
 table.p-detail tfoot tr.totalrow td.lbl{text-align:right}
 table.p-detail tfoot tr.payrow td.lbl,table.p-detail tfoot tr.saldorow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
 table.p-detail tfoot tr.payrow td.lbl b,table.p-detail tfoot tr.saldorow td.lbl b{display:block;font-weight:700}
 table.p-detail tfoot tr.payrow td.lbl .paren,table.p-detail tfoot tr.saldorow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
-table.p-detail tfoot tr.payrow td.num,table.p-detail tfoot tr.saldorow td.num{text-align:right;font-weight:700}
+table.p-detail tfoot tr.payrow td.num,table.p-detail tfoot tr.saldorow td.num{text-align:right;font-weight:700;white-space:nowrap}
 table.p-detail tfoot tr.saldorow td.lbl,table.p-detail tfoot tr.saldorow td.num{color:#3d7a52}
-table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right}
+table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right;white-space:nowrap}
 .p-terms{margin-top:20px;font-size:9.5px;line-height:1.55;color:#444}
 .p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
 .preview-actions{display:flex;gap:10px;margin-top:16px}
@@ -158,14 +159,14 @@ table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{co
 /* ---------- PLANILLAS (Presupuestos / Ventas) ---------- */
 .sheet-monthbar{display:flex;align-items:center;justify-content:center;gap:18px;padding:12px;background:#fff;border-bottom:1px solid #ece6d8;font-family:'Montserrat',sans-serif}
 .sheet-month-label{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;min-width:150px;text-align:center;text-transform:capitalize;color:#3a352c}
-.sheet-wrap{overflow-x:auto;padding:10px;display:flex;justify-content:center}
-table.sheet-table{margin:0 auto}
-table.sheet-table{border-collapse:collapse;table-layout:fixed;font-size:11.5px;background:#fff;font-family:'Montserrat',sans-serif}
+.sheet-wrap{overflow-x:auto;padding:10px}
+table.sheet-table{border-collapse:collapse;table-layout:auto;font-size:11.5px;background:#fff;font-family:'Montserrat',sans-serif}
 table.sheet-table thead th{background:#f2eee3;color:#a8823f;font-size:9.5px;letter-spacing:.02em;text-transform:uppercase;padding:7px 4px;text-align:center;position:sticky;top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
 .sheet-filter{width:100%;border:none;background:transparent;text-align:center;font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;color:#a8823f;text-transform:uppercase;letter-spacing:.02em;padding:2px 0}
 .sheet-filter::placeholder{color:#a8823f;font-weight:700;text-transform:uppercase;opacity:1}
 .sheet-filter:focus{outline:none;border-bottom:1.5px solid #c9a86a}
-table.sheet-table tbody td{border-bottom:1px solid #f0ece2;padding:5px 4px;vertical-align:middle;color:#3a352c;text-align:center;overflow:hidden;text-overflow:ellipsis}
+table.sheet-table tbody td{border-bottom:1px solid #f0ece2;padding:5px 8px;vertical-align:middle;color:#3a352c;text-align:center;white-space:nowrap}
+table.sheet-table td.notes-cell{white-space:normal}
 table.sheet-table tbody tr.group-first td{border-top:1px solid #e3ddd0}
 table.sheet-table td.vmid{vertical-align:middle;text-align:center}
 table.sheet-table td.notes-cell{color:#9a9285;font-style:italic;font-size:10.5px;text-align:left;padding-left:10px}
