@@ -1493,19 +1493,19 @@ function buildPaperHTML(d, c, includeNotes){
     theadCols = `<th>Detalle</th><th></th><th class="num">Valor</th>`;
     rowsHTML = d.productos.map(p=>`<tr><td>${p.desc}</td><td></td><td class="num">${p.moneda==='USD'?fmtUSD(p.total):fmtARS(p.total)}</td></tr>`).join('');
     let rows = `<tr class="rule"><td colspan="3"></td></tr>`;
-    if(d.totalARS>0) rows += `<tr class="totalrow"><td></td><td class="lbl">Total</td><td class="num">${fmtARS(d.totalARS)}</td></tr>`;
-    if(d.totalUSD>0) rows += `<tr class="totalrow"><td></td><td class="lbl">Total</td><td class="num">${fmtUSD(d.totalUSD)}</td></tr>`;
+    if(d.totalARS>0) rows += `<tr class="totalrow"><td class="lbl" colspan="2">Total</td><td class="num">${fmtARS(d.totalARS)}</td></tr>`;
+    if(d.totalUSD>0) rows += `<tr class="totalrow"><td class="lbl" colspan="2">Total</td><td class="num">${fmtUSD(d.totalUSD)}</td></tr>`;
     (d.pagos||[]).forEach(p=>{
       const m = METODOS[p.metodo];
-      rows += `<tr class="payrow"><td></td><td class="lbl"><b>Pago</b><span class="paren">(${m.paren})</span></td><td class="num">${m.moneda==='ARS'?fmtARS(p.monto):fmtUSD(p.monto)}</td></tr>`;
+      rows += `<tr class="payrow"><td class="lbl" colspan="2"><b>Pago</b><span class="paren">(${m.paren})</span></td><td class="num">${m.moneda==='ARS'?fmtARS(p.monto):fmtUSD(p.monto)}</td></tr>`;
     });
     if(d.saldado && d.aPagarARS<=0 && d.aPagarUSD<=0){
       const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
-      rows += `<tr class="saldorow"><td></td><td class="lbl"><b>Saldado ${fmtDate(d.saldadoFecha)}</b><span class="paren">(${METODOS[d.saldadoMetodo].paren})</span></td><td class="num">${f(d.saldadoMonto)}</td></tr>`;
+      rows += `<tr class="saldorow"><td class="lbl" colspan="2"><b>Saldado ${fmtDate(d.saldadoFecha)}</b><span class="paren">(${METODOS[d.saldadoMetodo].paren})</span></td><td class="num">${f(d.saldadoMonto)}</td></tr>`;
     } else {
-      const fechaPagoHTML = d.fechaPago? `<span class="paren">(fecha de pago: ${fmtDateCorto(d.fechaPago)})</span>` : '';
-      if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${fechaPagoHTML}</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
-      if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${d.aPagarARS>0?'':fechaPagoHTML}</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
+      const fechaPagoHTML = d.fechaPago? `<span class="paren">(fecha de pago ${fmtDateCorto(d.fechaPago)})</span>` : '';
+      if(d.aPagarARS>0) rows += `<tr class="deberow"><td class="lbl" colspan="2"><b>A pagar</b>${fechaPagoHTML}</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
+      if(d.aPagarUSD>0) rows += `<tr class="deberow"><td class="lbl" colspan="2"><b>A pagar</b>${d.aPagarARS>0?'':fechaPagoHTML}</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
     }
     totalsHTML = rows;
   }
