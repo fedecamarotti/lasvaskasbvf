@@ -609,6 +609,8 @@ function todayISO(){ return new Date().toISOString().slice(0,10); }
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 // Sin ceros a la izquierda y sin año (para textos chicos tipo "1/10")
 function fmtDateCorto(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${parseInt(d,10)}/${parseInt(m,10)}`; }
+// Sin ceros a la izquierda, con año de 2 dígitos (para el texto de WhatsApp, ej: "22/9/26")
+function fmtDateCortoAnio(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${parseInt(d,10)}/${parseInt(m,10)}/${y.slice(-2)}`; }
 function fmtDateSheet(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${parseInt(d,10)}/${parseInt(m,10)}`; }
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
@@ -1619,18 +1621,21 @@ function downloadImage(){
 }
 // Abre directo el WhatsApp de la clienta (con el teléfono de su ficha), sin descargar ni adjuntar nada:
 // la imagen se comparte a mano con el botón "Descargar".
+function textoRemitoWhatsapp(d){
+  const c = currentClienteData;
+  const tipoTxt = d.tipo==='presupuesto'? 'Presupuesto' : 'Venta';
+  return `${tipoTxt} ${c.nombre} ${c.apellido} ${fmtDateCortoAnio(todayISO())}`;
+}
 function enviarAClienta(){
   const d = currentDocForPreview;
   const tel = currentClienteData.telefono||'';
   if(!tel){ alert('Esta clienta no tiene teléfono cargado.'); return; }
-  const texto = '¡Hola! Te comparto tu '+(d.tipo==='presupuesto'?'presupuesto':'recibo')+' de LASVASKAS.';
-  window.open(`${waLink(tel)}?text=${encodeURIComponent(texto)}`,'_blank');
+  window.open(`${waLink(tel)}?text=${encodeURIComponent(textoRemitoWhatsapp(d))}`,'_blank');
 }
 // Abre WhatsApp para elegir a quién enviarlo (sin un número fijo), sin descargar ni adjuntar nada.
 function enviarPorWhatsapp(){
   const d = currentDocForPreview;
-  const texto = `${BIZ.nombre} — ${d.tipo==='presupuesto'?'Presupuesto':'Recibo de venta'}`;
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`,'_blank');
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textoRemitoWhatsapp(d))}`,'_blank');
 }
 
 /* =================== DEUDAS =================== */
