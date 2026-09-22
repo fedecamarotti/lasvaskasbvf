@@ -609,19 +609,23 @@ function doLogin(){
   });
 }
 function doLogout(){ auth.signOut(); }
+// Roles válidos en el campo "rol" de cada documento en usuarios/{uid}:
+//  - "admin"      -> Fede: ve todo, incluida la columna Costos
+//  - "full"       -> Belu, Viqui: ven todo, incluida la columna Costos
+//  - "limitado"   -> Juli: por ahora ve todo salvo la columna Costos (a futuro se le pueden ocultar más cosas bajo este mismo rol)
 auth.onAuthStateChanged(user=>{
   if(user){
     currentUserUid = user.uid;
     db.collection('usuarios').doc(user.uid).get().then(doc=>{
-      currentUserRole = doc.exists? (doc.data().rol||'limited') : 'limited';
+      currentUserRole = doc.exists? (doc.data().rol||'full') : 'full';
       currentUserNombre = doc.exists? (doc.data().nombre||user.email||'') : (user.email||'');
-      document.body.classList.toggle('role-limited', currentUserRole==='limited');
+      document.body.classList.toggle('role-limited', currentUserRole==='limitado');
       showScreen('clientas');
       loadClientas();
     }).catch(()=>{
-      currentUserRole = 'limited';
+      currentUserRole = 'full';
       currentUserNombre = user.email||'';
-      document.body.classList.add('role-limited');
+      document.body.classList.remove('role-limited');
       showScreen('clientas');
       loadClientas();
     });
