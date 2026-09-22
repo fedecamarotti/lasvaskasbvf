@@ -526,9 +526,12 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 <div id="modal-nota" class="modal-overlay hidden">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-nota')">✕</button>
-    <h2>Nueva nota</h2>
+    <h2 id="nota-modal-title">Nueva nota</h2>
     <div class="field"><label>Nota</label><textarea id="nota-texto" rows="4"></textarea></div>
     <button class="btn btn-primary" style="width:100%" onclick="saveNota()">Guardar nota</button>
+    <div id="nota-delete-row" class="hidden" style="text-align:center;margin-top:14px">
+      <button class="btn-danger" style="font-size:13px" onclick="deleteNota()">Eliminar nota</button>
+    </div>
   </div>
 </div>
 
@@ -1421,6 +1424,8 @@ function deletePago(){
 function openNotaModal(existingId){
   document.getElementById('nota-texto').value = '';
   document.getElementById('nota-texto').dataset.editingId = existingId||'';
+  document.getElementById('nota-modal-title').textContent = existingId? 'Editar nota' : 'Nueva nota';
+  document.getElementById('nota-delete-row').classList.toggle('hidden', !existingId);
   if(existingId){
     const d = docsCache.find(x=>x.id===existingId);
     if(d) document.getElementById('nota-texto').value = d.texto||'';
@@ -1446,6 +1451,14 @@ function saveNota(){
     closeModal('modal-nota');
     upsertDocInCache({id: res.id, ...notaData});
   }).catch(err=>{ console.error(err); alert('No se pudo guardar la nota. Revisá la consola.'); });
+}
+function deleteNota(){
+  const editingId = document.getElementById('nota-texto').dataset.editingId;
+  if(!editingId || !confirm('¿Eliminar esta nota?')) return;
+  db.collection('clientas').doc(currentClienteId).collection('documentos').doc(editingId).delete().then(()=>{
+    closeModal('modal-nota');
+    removeDocFromCache(editingId);
+  }).catch(err=>{ console.error(err); alert('No se pudo eliminar la nota. Revisá la consola.'); });
 }
 
 /* =================== PREVIEW / PDF =================== */
