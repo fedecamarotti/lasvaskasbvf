@@ -150,17 +150,21 @@ table.p-detail tfoot tr.payrow td.lbl b,table.p-detail tfoot tr.saldorow td.lbl 
 table.p-detail tfoot tr.payrow td.lbl .paren,table.p-detail tfoot tr.saldorow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
 table.p-detail tfoot tr.payrow td.num,table.p-detail tfoot tr.saldorow td.num{text-align:right;font-weight:700;white-space:nowrap}
 table.p-detail tfoot tr.saldorow td.lbl,table.p-detail tfoot tr.saldorow td.num{color:#3d7a52}
-table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right;white-space:nowrap}
+table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right;white-space:nowrap;line-height:1.1}
+table.p-detail tfoot tr.deberow td.lbl b{display:block;font-weight:700}
 .p-terms{margin-top:20px;font-size:9.5px;line-height:1.55;color:#444}
 .p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
 .preview-actions{display:flex;gap:10px;margin-top:16px}
 .preview-actions .btn{flex:1;text-align:center}
+.preview-actions-4{gap:6px}
+.preview-actions-4 .btn{padding:9px 2px;font-size:11px;letter-spacing:0;display:flex;flex-direction:column;align-items:center;gap:3px}
+.preview-actions-4 .btn i{font-size:14px}
 
 /* ---------- PLANILLAS (Presupuestos / Ventas) ---------- */
 .sheet-monthbar{display:flex;align-items:center;justify-content:center;gap:18px;padding:12px;background:#fff;border-bottom:1px solid #ece6d8;font-family:'Montserrat',sans-serif}
 .sheet-month-label{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;min-width:150px;text-align:center;text-transform:capitalize;color:#3a352c}
 .sheet-wrap{overflow-x:auto;padding:10px}
-table.sheet-table{border-collapse:collapse;table-layout:fixed;font-size:11.5px;background:#fff;font-family:'Montserrat',sans-serif}
+table.sheet-table{border-collapse:collapse;table-layout:fixed;font-size:11.5px;background:#fff;font-family:'Montserrat',sans-serif;width:100%}
 table.sheet-table thead th{background:#f2eee3;color:#a8823f;font-size:9.5px;letter-spacing:.02em;text-transform:uppercase;padding:7px 4px;text-align:center;position:sticky;top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
 .sheet-filter{width:100%;border:none;background:transparent;text-align:center;font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;color:#a8823f;text-transform:uppercase;letter-spacing:.02em;padding:2px 0}
 .sheet-filter::placeholder{color:#a8823f;font-weight:700;text-transform:uppercase;opacity:1}
@@ -186,7 +190,6 @@ td.edit-cell{width:26px}
 .metodo-transf{background:#e3eaf7;color:#3f5f96}
 .metodo-debe{background:#fbe4e1;color:#a13f38}
 .costos-totals{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#8a8375}
-table.sheet-table tbody tr.pending-row td{background:#fdf6e6}
 .sheet-authorize{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#4f8f68;color:#fff;font-size:11px;font-weight:700;cursor:pointer;margin-top:4px}
 body.role-limited #venta-table th:nth-child(8),
 body.role-limited #venta-table td:nth-child(8),
@@ -197,9 +200,9 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 }
 
 /* ---------- fila única producto/venta ---------- */
-.prod-row-venta{display:flex;gap:6px;align-items:flex-end}
-.prod-row-venta .field{margin-bottom:0}
-.pd-desc-wrap{flex:2;min-width:0}
+.prod-row-lines{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.prod-row-line2{display:flex;gap:6px;align-items:flex-end}
+.prod-row-line2 .field{margin-bottom:0}
 .pd-moneda-wrap{flex:0 0 52px}
 .pd-cant-wrap{flex:0 0 54px}
 .pd-vu-wrap{flex:0 0 92px}
@@ -214,6 +217,20 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 .pv-divider label{margin:0;flex-shrink:0}
 .pv-divider select{flex:1}
 .pv-divider .rm-row{flex-shrink:0}
+
+/* ---------- fila única de costos (siempre en pesos) ---------- */
+.costo-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.costo-row .field{margin-bottom:0}
+.co-tipo-wrap{flex:0 0 126px}
+.co-detalle-wrap{flex:2;min-width:0}
+.co-cant-wrap{flex:0 0 42px}
+.co-cant-wrap input{text-align:center;padding:9px 4px}
+.co-valor-wrap{flex:0 0 84px}
+.co-valor-wrap input{text-align:right;padding:9px 6px}
+@media(max-width:400px){
+  .co-tipo-wrap{flex:0 0 104px}
+  .co-valor-wrap{flex:0 0 74px}
+}
 
 /* ---------- clienta cliqueable en planillas ---------- */
 .sheet-client-link{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
@@ -236,7 +253,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 .deuda-row{display:flex;gap:10px;margin-top:4px}
 .deuda-row .field{flex:1}
 #doc-deuda-display{font-weight:600;color:#c1685c}
-.p-fechapago{display:block;font-weight:400;font-size:9.5px;color:#777;margin-top:2px}
+.p-fechapago{display:block;font-weight:400;font-size:9.5px;color:#777;margin-top:2px;text-transform:none}
 .deudora-fechapago{font-size:11px;color:#9a9285;margin-top:2px}
 .card.deuda-vencida{border-color:#e0a89f;background:#fdf3f1}
 .card.deuda-vencida .name{color:#a13f38}
@@ -362,7 +379,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
       </colgroup>
       <thead><tr>
         <th></th>
-        <th><input class="sheet-filter" id="vf-codigo" placeholder="Código" oninput="applySheetFilters('venta')"></th>
+        <th><input class="sheet-filter" id="vf-codigo" placeholder="Cód." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-clienta" placeholder="Clienta" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-fecha" placeholder="Fecha" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-pventa" placeholder="P. Venta" oninput="applySheetFilters('venta')"></th>
@@ -389,6 +406,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
     <h2>Costos</h2>
     <input type="hidden" id="costos-venta-id">
     <input type="hidden" id="costos-cliente-id">
+    <input type="hidden" id="costos-producto-index">
     <input type="hidden" id="costos-estado" value="">
     <div id="costos-container"></div>
     <div class="add-row-btn" onclick="addCostoRow()"><i class="fa-solid fa-plus"></i> Agregar línea</div>
@@ -465,7 +483,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
         <div class="field"><label>Fecha de pago</label><input id="doc-fechapago" type="date"></div>
       </div>
     </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="saveDoc()">Guardar</button>
+    <button class="btn btn-primary" id="doc-save-btn" style="width:100%;margin-top:10px" onclick="saveDoc()">Guardar</button>
     <div id="doc-delete-row" class="hidden" style="text-align:center;margin-top:14px">
       <button class="btn-danger" style="font-size:13px" onclick="deleteDoc()">Eliminar documento</button>
     </div>
@@ -482,7 +500,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
     <div class="field"><label>Método de pago</label><select id="pago-metodo-select"></select></div>
     <div class="field"><label>Monto</label><input id="pago-monto-input" placeholder="Monto"></div>
     <div class="field"><label>Cotización (solo si pagás en una moneda distinta a la de la deuda)</label><input id="pago-cotizacion-input" placeholder="ej: 1350"></div>
-    <button class="btn btn-primary" style="width:100%" onclick="savePago()">Guardar pago</button>
+    <button class="btn btn-primary" id="pago-save-btn" style="width:100%" onclick="savePago()">Guardar pago</button>
     <div id="pago-delete-row" class="hidden" style="text-align:center;margin-top:14px">
       <button class="btn-danger" style="font-size:13px" onclick="deletePago()">Eliminar pago</button>
     </div>
@@ -492,16 +510,14 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 <!-- ============ MODAL: PREVIEW ============ -->
 <div id="modal-preview" class="modal-overlay hidden">
   <div class="modal">
-    <button class="modal-close" onclick="closePreviewModal()">✕</button>
+    <button class="modal-close" onclick="closeModal('modal-preview')">✕</button>
     <h2>Vista previa</h2>
     <div class="paper-wrap"><div id="paper-render" class="paper"></div></div>
-    <div class="preview-actions">
+    <div class="preview-actions preview-actions-4">
       <button class="btn btn-outline" onclick="editCurrentDoc()"><i class="fa-solid fa-pen"></i> Editar</button>
-      <button class="btn btn-outline" onclick="downloadImage()"><i class="fa-solid fa-download"></i> Imagen</button>
-    </div>
-    <div class="preview-actions">
-      <button class="btn btn-primary" onclick="enviarAClienta()"><i class="fa-brands fa-whatsapp"></i> Enviar a clienta</button>
-      <button class="btn btn-outline" onclick="enviarAVentas()"><i class="fa-brands fa-whatsapp"></i> Enviar a ventas</button>
+      <button class="btn btn-outline" onclick="downloadImage()"><i class="fa-solid fa-download"></i> Descargar</button>
+      <button class="btn btn-primary" onclick="enviarAClienta()"><i class="fa-brands fa-whatsapp"></i> Clienta</button>
+      <button class="btn btn-outline" onclick="enviarPorWhatsapp()"><i class="fa-brands fa-whatsapp"></i> Whatsapp</button>
     </div>
   </div>
 </div>
@@ -537,10 +553,7 @@ const db = firebase.firestore();
 
 const BIZ = {
   nombre:"LASVASKAS", direccion:"Zapata 406", telefono:"+54 9 11 5499-4480",
-  insta:"Instagram.com/lasvaskas", web:"www.lasvaskas.com.ar",
-  // TODO Fede: si querés que "Enviar a ventas" abra directo el WhatsApp del chat/grupo de ventas
-  // (cuando no hay app nativa para compartir), completá acá el número, ej: "+54 9 11 xxxx-xxxx"
-  telefonoVentas: ""
+  insta:"Instagram.com/lasvaskas", web:"www.lasvaskas.com.ar"
 };
 const METODOS = {
   EFVO_ARS:{label:"Efectivo $", paren:"efectivo", moneda:"ARS"},
@@ -555,12 +568,12 @@ let clientasCache = [];
 let currentClienteId = null;
 let currentClienteData = null;
 let docsCache = [];
+let docsCacheClienteId = null; // a qué clienta corresponde lo que hay en docsCache
 let currentDocForPreview = null;
 let editingDocTipo = null;
 let currentUserRole = null;
 let currentUserUid = null;
 let currentUserNombre = '';
-let ventasEnviadas = {}; // docId -> true, para el aviso al cerrar sin enviar a ventas
 
 /* =================== HELPERS =================== */
 function num(v){ const digits = String(v||'').replace(/[^\d]/g,''); return digits? parseInt(digits,10) : 0; }
@@ -652,7 +665,8 @@ function updateDeudasBadge(){
   if(count>0){ el.textContent=count; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
 }
 // Recalcula la deuda total de una clienta (suma de sus ventas pendientes) y la guarda en su ficha,
-// así la lista principal la puede mostrar sin necesitar consultas especiales de Firestore.
+// consultando Firestore directamente. Se usa como respaldo cuando docsCache no corresponde a esta clienta
+// (por ejemplo al editar una venta desde la planilla sin haber entrado a la ficha).
 function recomputeClienteDeuda(clienteId){
   return db.collection('clientas').doc(clienteId).collection('documentos').where('tipo','==','venta').get().then(snap=>{
     let deudaARS = 0, deudaUSD = 0;
@@ -664,16 +678,45 @@ function recomputeClienteDeuda(clienteId){
     return db.collection('clientas').doc(clienteId).update({deudaARS, deudaUSD}).then(()=>({deudaARS, deudaUSD}));
   });
 }
+function applyDeudaToClienteCache(clienteId, deudaARS, deudaUSD){
+  const idx = clientasCache.findIndex(c=>c.id===clienteId);
+  if(idx>-1){ clientasCache[idx].deudaARS = deudaARS; clientasCache[idx].deudaUSD = deudaUSD; }
+  if(currentClienteId===clienteId && currentClienteData){ currentClienteData.deudaARS = deudaARS; currentClienteData.deudaUSD = deudaUSD; }
+  renderClientasList();
+  updateDeudasBadge();
+}
 // Recalcula la deuda y actualiza solo en memoria (sin releer toda la lista de clientas de Firestore) para que la UI reaccione al instante
 function refreshClienteDeudaLocal(clienteId){
   return recomputeClienteDeuda(clienteId).then(({deudaARS, deudaUSD})=>{
-    const idx = clientasCache.findIndex(c=>c.id===clienteId);
-    if(idx>-1){ clientasCache[idx].deudaARS = deudaARS; clientasCache[idx].deudaUSD = deudaUSD; }
-    if(currentClienteId===clienteId && currentClienteData){ currentClienteData.deudaARS = deudaARS; currentClienteData.deudaUSD = deudaUSD; }
-    renderClientasList();
-    updateDeudasBadge();
+    applyDeudaToClienteCache(clienteId, deudaARS, deudaUSD);
     return {deudaARS, deudaUSD};
   });
+}
+function computeDeudaFromCache(){
+  let deudaARS=0, deudaUSD=0;
+  docsCache.forEach(d=>{ if(d.tipo==='venta'){ deudaARS += d.aPagarARS||0; deudaUSD += d.aPagarUSD||0; } });
+  return {deudaARS, deudaUSD};
+}
+// Igual que refreshClienteDeudaLocal pero sin consultar Firestore: usa docsCache, que ya está en memoria
+// porque se mantiene sincronizado con cada guardado. Solo es seguro cuando docsCache corresponde a esta
+// clienta (siempre que se guardó desde su ficha); si no, cae al camino con consulta a Firestore.
+function refreshClienteDeudaFast(clienteId){
+  if(docsCacheClienteId!==clienteId){ refreshClienteDeudaLocal(clienteId); return; }
+  const {deudaARS, deudaUSD} = computeDeudaFromCache();
+  applyDeudaToClienteCache(clienteId, deudaARS, deudaUSD);
+  db.collection('clientas').doc(clienteId).update({deudaARS, deudaUSD}).catch(()=>{});
+}
+// Inserta o reemplaza un documento en docsCache y refresca la lista, sin volver a consultar Firestore.
+function upsertDocInCache(doc){
+  if(docsCacheClienteId!==currentClienteId){ loadDocs(); return; }
+  const idx = docsCache.findIndex(x=>x.id===doc.id);
+  if(idx>-1) docsCache[idx] = doc; else docsCache.unshift(doc);
+  renderDocsList();
+}
+function removeDocFromCache(id){
+  if(docsCacheClienteId!==currentClienteId){ loadDocs(); return; }
+  docsCache = docsCache.filter(x=>x.id!==id);
+  renderDocsList();
 }
 function fmtDebtObj(o){
   return (o.ars>0?fmtARS(o.ars):'') + (o.ars>0&&o.usd>0?' + ':'') + (o.usd>0?fmtUSD(o.usd):'');
@@ -744,6 +787,9 @@ function deleteClienta(){
 /* =================== CLIENTE DETAIL =================== */
 function openClienteDetail(id){
   currentClienteId = id;
+  docsCache = [];
+  docsCacheClienteId = null;
+  document.getElementById('docs-list').innerHTML = '<div class="empty">Cargando...</div>';
   const cached = clientasCache.find(c=>c.id===id);
   if(cached){
     currentClienteData = cached;
@@ -776,8 +822,9 @@ function renderClientHeader(){
     </div>`;
 }
 function loadDocs(){
-  db.collection('clientas').doc(currentClienteId).collection('documentos').orderBy('createdAt','desc').get().then(snap=>{
+  return db.collection('clientas').doc(currentClienteId).collection('documentos').orderBy('createdAt','desc').get().then(snap=>{
     docsCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    docsCacheClienteId = currentClienteId;
     renderDocsList();
   });
 }
@@ -888,12 +935,15 @@ function addProductoRow(p){
   row.className='prod-row';
   if(editingDocTipo==='presupuesto'){
     row.innerHTML = `
-      <div class="field" style="flex:2"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
-      <div class="field" style="flex:0 0 52px"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
-      <div class="field" style="flex:0 0 78px"><input class="pd-efvo" placeholder="Efectivo" value="${fmtMoney(p.efvo)}"></div>
-      <div class="field" style="flex:0 0 78px"><input class="pd-tarj" placeholder="Tarjeta" value="${fmtMoney(p.tarj)}" readonly style="opacity:.65"></div>
+      <div class="prod-row-lines">
+        <div class="field"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
+        <div class="prod-row-line2">
+          <div class="field pd-moneda-wrap"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
+          <div class="field pd-vu-wrap"><input class="pd-efvo" placeholder="Efectivo" value="${fmtMoney(p.efvo)}"></div>
+          <div class="field pd-vu-wrap"><input class="pd-tarj" placeholder="Tarjeta" value="${fmtMoney(p.tarj)}" readonly style="opacity:.65"></div>
+        </div>
+      </div>
       <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
-    row.classList.add('prod-row-venta');
     cont.appendChild(row);
     const efvoInput = row.querySelector('.pd-efvo'), tarjInput = row.querySelector('.pd-tarj');
     attachMoneyInput(efvoInput);
@@ -902,13 +952,16 @@ function addProductoRow(p){
       tarjInput.value = v? Math.round(v*1.25).toLocaleString('es-AR') : '';
     });
   } else {
-    row.classList.add('prod-row-venta');
     row.innerHTML = `
-      <div class="field pd-desc-wrap"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
-      <div class="field pd-moneda-wrap"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
-      <div class="field pd-cant-wrap"><input class="pd-cant" placeholder="Cant." value="${p.cant||''}"></div>
-      <div class="field pd-vu-wrap"><input class="pd-valorunit" placeholder="V. unit." value="${fmtMoney(p.valorUnit)}"></div>
-      <div class="field pd-total-wrap"><input class="pd-total" placeholder="Total" value="${fmtMoney(p.total)}" readonly style="opacity:.65"></div>
+      <div class="prod-row-lines">
+        <div class="field"><input class="pd-desc" placeholder="Descripción" value="${p.desc||''}"></div>
+        <div class="prod-row-line2">
+          <div class="field pd-moneda-wrap"><select class="pd-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
+          <div class="field pd-cant-wrap"><input class="pd-cant" placeholder="Cant." value="${p.cant||''}"></div>
+          <div class="field pd-vu-wrap"><input class="pd-valorunit" placeholder="V. unit." value="${fmtMoney(p.valorUnit)}"></div>
+          <div class="field pd-total-wrap"><input class="pd-total" placeholder="Total" value="${fmtMoney(p.total)}" readonly style="opacity:.65"></div>
+        </div>
+      </div>
       <div class="rm-row" onclick="this.parentElement.remove()">✕</div>`;
     cont.appendChild(row);
     const cantInput = row.querySelector('.pd-cant'), vuInput = row.querySelector('.pd-valorunit'), totalInput = row.querySelector('.pd-total');
@@ -927,11 +980,15 @@ function addArregloRow(p){
   p = p||{};
   const cont = document.getElementById('productos-container');
   const row = document.createElement('div');
-  row.className='prod-row arreglo-row prod-row-venta';
+  row.className='prod-row arreglo-row';
   row.innerHTML = `
-    <div class="field pd-desc-wrap"><input class="ar-desc" placeholder="Arreglo / otro" value="${p.desc||''}"></div>
-    <div class="field pd-moneda-wrap"><select class="ar-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
-    <div class="field pd-vu-wrap"><input class="ar-valor" placeholder="Valor" value="${fmtMoney(p.total)}"></div>
+    <div class="prod-row-lines">
+      <div class="field"><input class="ar-desc" placeholder="Arreglo / otro" value="${p.desc||''}"></div>
+      <div class="prod-row-line2">
+        <div class="field pd-moneda-wrap"><select class="ar-moneda"><option value="ARS" ${p.moneda==='USD'?'':'selected'}>$</option><option value="USD" ${p.moneda==='USD'?'selected':''}>usd</option></select></div>
+        <div class="field pd-vu-wrap"><input class="ar-valor" placeholder="Valor" value="${fmtMoney(p.total)}"></div>
+      </div>
+    </div>
     <div class="rm-row">✕</div>`;
   cont.appendChild(row);
   const valorInput = row.querySelector('.ar-valor');
@@ -1085,8 +1142,12 @@ function saveDoc(){
       const monto = num(row.querySelector('.pg-monto').value);
       if(monto<=0) return;
       if(!metodo){ pagoError=true; return; }
-      pagos.push({metodo, monto});
-      if(METODOS[metodo].moneda==='ARS') pagadoARS += monto; else pagadoUSD += monto;
+      // Sin cotización disponible acá (eso solo se pide en el flujo de "Pago" para saldar deuda):
+      // el monto se aplica directo a la moneda del método elegido, igual que hacía la app antes.
+      const addARS = METODOS[metodo].moneda==='ARS'? monto : 0;
+      const addUSD = METODOS[metodo].moneda==='USD'? monto : 0;
+      pagos.push({metodo, monto, addARS, addUSD});
+      pagadoARS += addARS; pagadoUSD += addUSD;
     });
     if(pagoError){ alert('Falta método de pago'); return; }
     data.pagos = pagos; data.totalARS = totalARS; data.totalUSD = totalUSD;
@@ -1098,20 +1159,28 @@ function saveDoc(){
   }
 
   const ref = db.collection('clientas').doc(currentClienteId).collection('documentos');
+  const saveBtn = document.getElementById('doc-save-btn');
+  if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Guardando...'; }
   const proceed = (codigo)=>{
     if(tipo==='venta' && codigo!==undefined) data.codigo = codigo;
     const p = id ? ref.doc(id).update(data) : ref.add({...data, createdAt: Date.now()});
     p.then((res)=>{
       const savedId = id || res.id;
+      const savedDoc = {id: savedId, ...data};
       syncGlobalDoc(tipo, savedId, {...data, id: savedId, createdAt: Date.now()});
       closeModal('modal-doc');
-      renderPreview({id: savedId, ...data});
-      loadDocs();
+      renderPreview(savedDoc);
+      upsertDocInCache(savedDoc);
       if(tipo==='venta'){
-        refreshClienteDeudaLocal(currentClienteId);
+        refreshClienteDeudaFast(currentClienteId);
       }
       if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
       if(!document.getElementById('screen-presu-sheet').classList.contains('hidden')) openPresupuestosSheet();
+      if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
+    }).catch(err=>{
+      console.error(err);
+      alert('No se pudo guardar. Revisá la consola.');
+      if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
     });
   };
   if(tipo==='venta' && !id){
@@ -1134,12 +1203,15 @@ function deleteDoc(){
     deleteGlobalDoc(tipo, id);
     closeModal('modal-doc');
     closeModal('modal-preview');
-    loadDocs();
+    removeDocFromCache(id);
     if(tipo==='venta'){
-      refreshClienteDeudaLocal(currentClienteId);
+      refreshClienteDeudaFast(currentClienteId);
     }
     if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
     if(!document.getElementById('screen-presu-sheet').classList.contains('hidden')) openPresupuestosSheet();
+  }).catch(err=>{
+    console.error(err);
+    alert('No se pudo eliminar. Revisá la consola.');
   });
 }
 function editCurrentDoc(){
@@ -1219,40 +1291,60 @@ function savePago(){
   if(!metodo){ alert('Falta método de pago'); return; }
   if(monto<=0){ alert('Ingresá un monto.'); return; }
   const fecha = todayISO();
+  const saveBtn = document.getElementById('pago-save-btn');
+  const setBusy = (b)=>{ if(saveBtn){ saveBtn.disabled=b; saveBtn.textContent = b? 'Guardando...' : 'Guardar pago'; } };
 
   if(editPagoId){
+    setBusy(true);
     const pagoDoc = docsCache.find(x=>x.id===editPagoId);
-    if(!pagoDoc){ return; }
+    if(!pagoDoc){ setBusy(false); return; }
     const ventaRef = db.collection('clientas').doc(currentClienteId).collection('documentos').doc(pagoDoc.refVentaId);
     ventaRef.get().then(ventaSnap=>{
+      if(!ventaSnap.exists){
+        alert('La venta asociada a este pago ya no existe (fue eliminada). Solo se puede eliminar este pago, no editarlo.');
+        setBusy(false);
+        return;
+      }
       const d = {id: pagoDoc.refVentaId, ...ventaSnap.data()};
       const otrosPagos = (d.pagos||[]).filter(p=>p.pagoDocId!==editPagoId);
       const base = applyPagosToVenta(d, otrosPagos);
       const eff = computePagoEffect({...d, aPagarARS: base.aPagarARS, aPagarUSD: base.aPagarUSD}, metodo, monto, cotizacion);
-      if(eff.error){ alert(eff.error); return; }
+      if(eff.error){ alert(eff.error); setBusy(false); return; }
       const nuevoPago = {metodo, monto, ...(cotizacion?{cotizacion}:{}), pagoDocId: editPagoId, addARS: eff.addARS, addUSD: eff.addUSD};
       const pagos = [...otrosPagos, nuevoPago];
       const totals = applyPagosToVenta(d, pagos);
       const updateData = {pagos, pagadoARS: totals.pagadoARS, pagadoUSD: totals.pagadoUSD, aPagarARS: totals.aPagarARS, aPagarUSD: totals.aPagarUSD};
       if(totals.fullySettled){ updateData.saldado=true; updateData.saldadoFecha=pagoDoc.fecha; updateData.saldadoMonto=monto; updateData.saldadoMoneda=eff.payMoneda; updateData.saldadoMetodo=metodo; }
       else { updateData.saldado=false; }
+      const pagoUpdate = {metodo, monto, ...(cotizacion?{cotizacion}: {cotizacion: firebase.firestore.FieldValue.delete()})};
       const batch = db.batch();
       batch.update(ventaRef, updateData);
-      batch.update(db.collection('clientas').doc(currentClienteId).collection('documentos').doc(editPagoId), {metodo, monto, ...(cotizacion?{cotizacion}: {cotizacion: firebase.firestore.FieldValue.delete()})});
+      batch.update(db.collection('clientas').doc(currentClienteId).collection('documentos').doc(editPagoId), pagoUpdate);
       batch.commit().then(()=>{
         db.collection('ventas').doc(pagoDoc.refVentaId).update(updateData).catch(()=>{});
         closeModal('modal-pago');
-        loadDocs();
-        refreshClienteDeudaLocal(currentClienteId);
+        upsertDocInCache({...d, ...updateData});
+        upsertDocInCache({...pagoDoc, metodo, monto, cotizacion: cotizacion||undefined});
+        refreshClienteDeudaFast(currentClienteId);
+        setBusy(false);
+      }).catch(err=>{
+        console.error(err);
+        alert('No se pudo guardar el cambio. Revisá la consola.');
+        setBusy(false);
       });
+    }).catch(err=>{
+      console.error(err);
+      alert('No se pudo leer la venta asociada a este pago. Revisá la consola.');
+      setBusy(false);
     });
     return;
   }
 
+  setBusy(true);
   const docId = document.getElementById('pago-doc-select').value;
   const d = docsCache.find(x=>x.id===docId);
   const eff = computePagoEffect(d, metodo, monto, cotizacion);
-  if(eff.error){ alert(eff.error); return; }
+  if(eff.error){ alert(eff.error); setBusy(false); return; }
   const pagoRef = db.collection('clientas').doc(currentClienteId).collection('documentos').doc();
   const nuevoPago = {metodo, monto, ...(cotizacion?{cotizacion}:{}), pagoDocId: pagoRef.id, addARS: eff.addARS, addUSD: eff.addUSD};
   const pagoData = {
@@ -1279,8 +1371,14 @@ function savePago(){
   batch.commit().then(()=>{
     db.collection('ventas').doc(docId).update(updateData).catch(()=>{});
     closeModal('modal-pago');
-    loadDocs();
-    refreshClienteDeudaLocal(currentClienteId);
+    upsertDocInCache({...d, ...updateData});
+    upsertDocInCache({id: pagoRef.id, ...pagoData});
+    refreshClienteDeudaFast(currentClienteId);
+    setBusy(false);
+  }).catch(err=>{
+    console.error(err);
+    alert('No se pudo guardar el pago. Revisá la consola.');
+    setBusy(false);
   });
 }
 function deletePago(){
@@ -1288,21 +1386,34 @@ function deletePago(){
   if(!pagoId || !confirm('¿Eliminar este pago? La deuda de la venta se actualizará.')) return;
   const pagoDoc = docsCache.find(x=>x.id===pagoId);
   if(!pagoDoc) return;
-  const ventaRef = db.collection('clientas').doc(currentClienteId).collection('documentos').doc(pagoDoc.refVentaId);
+  const clienteDocs = db.collection('clientas').doc(currentClienteId).collection('documentos');
+  const ventaRef = clienteDocs.doc(pagoDoc.refVentaId);
   ventaRef.get().then(ventaSnap=>{
-    const d = {id: pagoDoc.refVentaId, ...ventaSnap.data()};
-    const pagos = (d.pagos||[]).filter(p=>p.pagoDocId!==pagoId);
-    const totals = applyPagosToVenta(d, pagos);
-    const updateData = {pagos, pagadoARS: totals.pagadoARS, pagadoUSD: totals.pagadoUSD, aPagarARS: totals.aPagarARS, aPagarUSD: totals.aPagarUSD, saldado: totals.fullySettled};
     const batch = db.batch();
-    batch.update(ventaRef, updateData);
-    batch.delete(db.collection('clientas').doc(currentClienteId).collection('documentos').doc(pagoId));
+    let updateData = null, ventaData = null;
+    if(ventaSnap.exists){
+      const d = {id: pagoDoc.refVentaId, ...ventaSnap.data()};
+      const pagos = (d.pagos||[]).filter(p=>p.pagoDocId!==pagoId);
+      const totals = applyPagosToVenta(d, pagos);
+      updateData = {pagos, pagadoARS: totals.pagadoARS, pagadoUSD: totals.pagadoUSD, aPagarARS: totals.aPagarARS, aPagarUSD: totals.aPagarUSD, saldado: totals.fullySettled};
+      ventaData = {...d, ...updateData};
+      batch.update(ventaRef, updateData);
+    }
+    // Si la venta ya no existe (fue eliminada), igual dejamos borrar el pago huérfano.
+    batch.delete(clienteDocs.doc(pagoId));
     batch.commit().then(()=>{
-      db.collection('ventas').doc(pagoDoc.refVentaId).update(updateData).catch(()=>{});
+      if(updateData) db.collection('ventas').doc(pagoDoc.refVentaId).update(updateData).catch(()=>{});
       closeModal('modal-pago');
-      loadDocs();
-      refreshClienteDeudaLocal(currentClienteId);
+      removeDocFromCache(pagoId);
+      if(ventaData) upsertDocInCache(ventaData);
+      refreshClienteDeudaFast(currentClienteId);
+    }).catch(err=>{
+      console.error(err);
+      alert('No se pudo eliminar el pago. Revisá la consola.');
     });
+  }).catch(err=>{
+    console.error(err);
+    alert('No se pudo eliminar el pago. Revisá la consola.');
   });
 }
 
@@ -1321,11 +1432,20 @@ function saveNota(){
   const editingId = document.getElementById('nota-texto').dataset.editingId;
   if(!texto){ alert('Escribí algo en la nota.'); return; }
   const ref = db.collection('clientas').doc(currentClienteId).collection('documentos');
-  const p = editingId
-    ? ref.doc(editingId).update({texto})
-    : ref.add({tipo:'nota', texto, fecha: todayISO(), createdAt: Date.now(),
-        creadoPor: auth.currentUser? auth.currentUser.email : '', creadoPorNombre: currentUserNombre});
-  p.then(()=>{ closeModal('modal-nota'); loadDocs(); });
+  if(editingId){
+    ref.doc(editingId).update({texto}).then(()=>{
+      closeModal('modal-nota');
+      const existing = docsCache.find(x=>x.id===editingId);
+      upsertDocInCache({...(existing||{id:editingId, tipo:'nota'}), texto});
+    }).catch(err=>{ console.error(err); alert('No se pudo guardar la nota. Revisá la consola.'); });
+    return;
+  }
+  const notaData = {tipo:'nota', texto, fecha: todayISO(), createdAt: Date.now(),
+    creadoPor: auth.currentUser? auth.currentUser.email : '', creadoPorNombre: currentUserNombre};
+  ref.add(notaData).then(res=>{
+    closeModal('modal-nota');
+    upsertDocInCache({id: res.id, ...notaData});
+  }).catch(err=>{ console.error(err); alert('No se pudo guardar la nota. Revisá la consola.'); });
 }
 
 /* =================== PREVIEW / PDF =================== */
@@ -1369,8 +1489,8 @@ function buildPaperHTML(d, c, includeNotes){
       rows += `<tr class="saldorow"><td></td><td class="lbl"><b>Saldado ${fmtDate(d.saldadoFecha)}</b><span class="paren">(${METODOS[d.saldadoMetodo].paren})</span></td><td class="num">${f(d.saldadoMonto)}</td></tr>`;
     } else {
       const fechaPagoHTML = d.fechaPago? `<span class="p-fechapago">Fecha de pago: ${fmtDate(d.fechaPago)}</span>` : '';
-      if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar${fechaPagoHTML}</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
-      if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl">A pagar${d.aPagarARS>0?'':fechaPagoHTML}</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
+      if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${fechaPagoHTML}</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
+      if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${d.aPagarARS>0?'':fechaPagoHTML}</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
     }
     totalsHTML = rows;
   }
@@ -1421,16 +1541,8 @@ function buildPaperHTML(d, c, includeNotes){
 }
 function renderPreview(d){
   currentDocForPreview = d;
-  ventasEnviadas[d.id] = ventasEnviadas[d.id] || false;
   document.getElementById('paper-render').innerHTML = buildPaperHTML(d, currentClienteData, false);
   openModal('modal-preview');
-}
-function closePreviewModal(){
-  const d = currentDocForPreview;
-  if(d && d.id && !ventasEnviadas[d.id]){
-    if(!confirm('¿Seguro que querés cerrar sin haber enviado a ventas?')) return;
-  }
-  closeModal('modal-preview');
 }
 function docFilename(ext, suffix){
   const d = currentDocForPreview, c = currentClienteData;
@@ -1447,60 +1559,20 @@ function downloadImage(){
     link.click();
   });
 }
-// Genera una imagen a partir de un HTML de remito (usado para la versión con notas de "enviar a ventas"), sin tocar la vista previa visible
-function renderPaperVariantToCanvas(html, cb){
-  const holder = document.createElement('div');
-  holder.style.cssText = 'position:fixed;left:-9999px;top:0;background:#fff';
-  holder.className = 'paper';
-  holder.style.width = document.getElementById('paper-render').offsetWidth + 'px';
-  holder.innerHTML = html;
-  document.body.appendChild(holder);
-  html2canvas(holder, {scale:2, backgroundColor:'#ffffff'}).then(canvas=>{
-    document.body.removeChild(holder);
-    cb(canvas);
-  });
-}
+// Abre directo el WhatsApp de la clienta (con el teléfono de su ficha), sin descargar ni adjuntar nada:
+// la imagen se comparte a mano con el botón "Descargar".
 function enviarAClienta(){
   const d = currentDocForPreview;
-  renderToCanvas(canvas=>{
-    const link = document.createElement('a');
-    link.download = docFilename('png','clienta');
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    canvas.toBlob(blob=>{
-      const file = new File([blob], docFilename('png','clienta'), {type:'image/png'});
-      const tel = currentClienteData.telefono||'';
-      const texto = '¡Hola! Te comparto tu '+(d.tipo==='presupuesto'?'presupuesto':'recibo')+' de LASVASKAS.';
-      if(tel && navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file], title:BIZ.nombre, text:texto}).catch(()=>{});
-      }
-      if(tel){
-        window.open(`${waLink(tel)}?text=${encodeURIComponent(texto)}`,'_blank');
-      } else {
-        alert('Esta clienta no tiene teléfono cargado.');
-      }
-    });
-  });
+  const tel = currentClienteData.telefono||'';
+  if(!tel){ alert('Esta clienta no tiene teléfono cargado.'); return; }
+  const texto = '¡Hola! Te comparto tu '+(d.tipo==='presupuesto'?'presupuesto':'recibo')+' de LASVASKAS.';
+  window.open(`${waLink(tel)}?text=${encodeURIComponent(texto)}`,'_blank');
 }
-function enviarAVentas(){
+// Abre WhatsApp para elegir a quién enviarlo (sin un número fijo), sin descargar ni adjuntar nada.
+function enviarPorWhatsapp(){
   const d = currentDocForPreview;
-  const html = buildPaperHTML(d, currentClienteData, true);
-  renderPaperVariantToCanvas(html, canvas=>{
-    const link = document.createElement('a');
-    link.download = docFilename('png','ventas');
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    canvas.toBlob(blob=>{
-      const file = new File([blob], docFilename('png','ventas'), {type:'image/png'});
-      const texto = `${BIZ.nombre} — ${d.tipo==='presupuesto'?'Presupuesto':'Recibo de venta'} (con notas internas)`;
-      if(navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file], title:BIZ.nombre, text:texto}).catch(()=>{});
-      } else if(BIZ.telefonoVentas){
-        window.open(`${waLink(BIZ.telefonoVentas)}?text=${encodeURIComponent(texto)}`,'_blank');
-      }
-      ventasEnviadas[d.id] = true;
-    });
-  });
+  const texto = `${BIZ.nombre} — ${d.tipo==='presupuesto'?'Presupuesto':'Recibo de venta'}`;
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`,'_blank');
 }
 
 /* =================== DEUDAS =================== */
@@ -1555,45 +1627,28 @@ function addCostoRow(c){
   const cont = document.getElementById('costos-container');
   const row = document.createElement('div');
   row.className='costo-row';
-  row.style.cssText='display:flex;gap:8px;margin-bottom:10px;align-items:flex-start';
   row.innerHTML = `
-    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;gap:8px">
-        <div class="field" style="flex:1"><select class="co-tipo">
-          <option value="Avíos" ${c.tipo==='Avíos'?'selected':''}>Avíos</option>
-          <option value="Telas" ${c.tipo==='Telas'?'selected':''}>Telas</option>
-          <option value="Rufina nuevo" ${c.tipo==='Rufina nuevo'?'selected':''}>Rufina nuevo</option>
-          <option value="Rufina arreglos" ${c.tipo==='Rufina arreglos'?'selected':''}>Rufina arreglos</option>
-        </select></div>
-        <div class="field" style="flex:1.4"><input class="co-detalle" placeholder="Detalle" value="${c.detalle||''}"></div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <div class="field" style="flex:1"><input class="co-cant" placeholder="Cant." value="${c.cant||''}"></div>
-        <div class="field co-valor-field" style="flex:1"><input class="co-valor" placeholder="$" value="${fmtMoney(c.valor)}"></div>
-        <div class="field" style="flex:1"><input class="co-total" placeholder="Total" value="${fmtMoney(c.total)}" readonly style="opacity:.65"></div>
-      </div>
-    </div>
-    <div class="rm-row" style="margin-top:6px">✕</div>`;
+    <div class="field co-tipo-wrap"><select class="co-tipo">
+      <option value="Avíos" ${c.tipo==='Avíos'?'selected':''}>Avíos</option>
+      <option value="Telas" ${c.tipo==='Telas'?'selected':''}>Telas</option>
+      <option value="Rufina nuevo" ${c.tipo==='Rufina nuevo'?'selected':''}>Rufina nuevo</option>
+      <option value="Rufina arreglos" ${c.tipo==='Rufina arreglos'?'selected':''}>Rufina arreglos</option>
+    </select></div>
+    <div class="field co-detalle-wrap"><input class="co-detalle" placeholder="Detalle" value="${c.detalle||''}"></div>
+    <div class="field co-cant-wrap"><input class="co-cant" placeholder="Cant." value="${c.cant||''}"></div>
+    <div class="field co-valor-wrap co-valor-field"><input class="co-valor" placeholder="$" value="${fmtMoney(c.valor)}"></div>
+    <div class="rm-row">✕</div>`;
   cont.appendChild(row);
   const tipoSel=row.querySelector('.co-tipo'), cantInput=row.querySelector('.co-cant'),
-        valorInput=row.querySelector('.co-valor'), totalInput=row.querySelector('.co-total'),
-        valorField=row.querySelector('.co-valor-field');
-  attachMoneyInput(valorInput);
+        valorInput=row.querySelector('.co-valor'), valorField=row.querySelector('.co-valor-field');
+  attachMoneyInput(valorInput); // valor siempre en pesos, formateado con separador de miles (no decimal)
   function recalc(){
-    const cant = numDec(cantInput.value)||0;
-    if(tipoSel.value==='Rufina arreglos'){
-      valorField.style.display = 'none';
-      totalInput.value = cant? cant.toLocaleString('es-AR') : '';
-    } else {
-      valorField.style.display = '';
-      const valor = numDec(valorInput.value)||0;
-      totalInput.value = (cant*valor)? Math.round(cant*valor).toLocaleString('es-AR') : '';
-    }
+    valorField.style.display = tipoSel.value==='Rufina arreglos'? 'none' : '';
     recalcCostosTotals();
   }
   tipoSel.addEventListener('change', recalc);
-  cantInput.addEventListener('input', recalc);
-  valorInput.addEventListener('input', recalc);
+  cantInput.addEventListener('input', recalcCostosTotals);
+  valorInput.addEventListener('input', recalcCostosTotals);
   row.querySelector('.rm-row').addEventListener('click', ()=>{ row.remove(); recalcCostosTotals(); });
   recalc();
 }
@@ -1601,9 +1656,10 @@ function recalcCostosTotals(){
   let totalCostos=0, totalArreglos=0;
   document.querySelectorAll('#costos-container .costo-row').forEach(row=>{
     const tipo = row.querySelector('.co-tipo').value;
+    // Cantidad admite decimales (ej: 2,5 metros de tela); el valor en pesos es siempre entero.
     const cant = numDec(row.querySelector('.co-cant').value)||0;
     if(tipo==='Rufina arreglos'){ totalArreglos += cant; }
-    else { const valor = numDec(row.querySelector('.co-valor').value)||0; totalCostos += cant*valor; }
+    else { const valor = num(row.querySelector('.co-valor').value)||0; totalCostos += cant*valor; }
   });
   document.getElementById('costos-total-costos').textContent = fmtARS(totalCostos);
   document.getElementById('costos-total-arreglos').textContent = totalArreglos;
@@ -1615,9 +1671,12 @@ function setCostosEstado(v){
   document.getElementById('estado-btn-falta').classList.toggle('sel-falta', next==='falta');
   document.getElementById('estado-btn-completo').classList.toggle('sel-completo', next==='completo');
 }
-function openCostosModal(clienteId, ventaId, existingCostos, existingEstado){
+// productoIndex identifica a qué producto de la venta pertenecen estos costos (cada producto tiene los suyos,
+// y por lo tanto cada botón "+" de la planilla puede tener su propio color falta/completo).
+function openCostosModal(clienteId, ventaId, productoIndex, existingCostos, existingEstado){
   document.getElementById('costos-cliente-id').value = clienteId;
   document.getElementById('costos-venta-id').value = ventaId;
+  document.getElementById('costos-producto-index').value = productoIndex;
   document.getElementById('costos-estado').value = '';
   document.getElementById('estado-btn-falta').classList.remove('sel-falta');
   document.getElementById('estado-btn-completo').classList.remove('sel-completo');
@@ -1630,6 +1689,7 @@ function openCostosModal(clienteId, ventaId, existingCostos, existingEstado){
 function saveCostos(){
   const clienteId = document.getElementById('costos-cliente-id').value;
   const ventaId = document.getElementById('costos-venta-id').value;
+  const productoIndex = parseInt(document.getElementById('costos-producto-index').value, 10);
   const estadoCostos = document.getElementById('costos-estado').value || null;
   let costos = [];
   document.querySelectorAll('#costos-container .costo-row').forEach(row=>{
@@ -1638,13 +1698,22 @@ function saveCostos(){
     const cant = numDec(row.querySelector('.co-cant').value)||0;
     if(!cant) return;
     if(tipo==='Rufina arreglos'){ costos.push({tipo, detalle, cant, valor:0, total:cant}); }
-    else { const valor = numDec(row.querySelector('.co-valor').value)||0; costos.push({tipo, detalle, cant, valor, total:cant*valor}); }
+    else { const valor = num(row.querySelector('.co-valor').value)||0; costos.push({tipo, detalle, cant, valor, total:cant*valor}); }
   });
-  db.collection('clientas').doc(clienteId).collection('documentos').doc(ventaId).update({costos, estadoCostos}).then(()=>{
-    db.collection('ventas').doc(ventaId).update({costos, estadoCostos}).catch(()=>{});
-    closeModal('modal-costos');
-    if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
-    if(currentClienteId===clienteId) loadDocs();
+  const ventaRef = db.collection('clientas').doc(clienteId).collection('documentos').doc(ventaId);
+  ventaRef.get().then(snap=>{
+    if(!snap.exists){ alert('Esta venta ya no existe.'); return; }
+    const d = snap.data();
+    const productos = (d.productos||[]).map((p,i)=> i===productoIndex? {...p, costos, estadoCostos} : p);
+    return ventaRef.update({productos}).then(()=>{
+      db.collection('ventas').doc(ventaId).update({productos}).catch(()=>{});
+      closeModal('modal-costos');
+      if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
+      if(currentClienteId===clienteId) upsertDocInCache({id: ventaId, ...d, productos});
+    });
+  }).catch(err=>{
+    console.error(err);
+    alert('No se pudieron guardar los costos. Revisá la consola.');
   });
 }
 
@@ -1820,8 +1889,8 @@ function renderVentaSheet(docs){
   docs.forEach(d=>{
     const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
     let totalTxt = [d.totalARS?fmtARS(d.totalARS):'', d.totalUSD?fmtUSD(d.totalUSD):''].filter(Boolean).join('<br>');
-    const estadoClass = d.estadoCostos==='falta'?'estado-falta':(d.estadoCostos==='completo'?'estado-completo':'');
     (d.productos||[]).forEach((p,i)=>{
+      const estadoClass = p.estadoCostos==='falta'?'estado-falta':(p.estadoCostos==='completo'?'estado-completo':'');
       html += `<tr class="${i===0?'group-first':''}">`;
       if(i===0){
         html += `<td class="vmid edit-cell" rowspan="${rowspan}">
@@ -1834,7 +1903,7 @@ function renderVentaSheet(docs){
         html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
       }
       html += `<td>${p.desc}</td>`;
-      html += `<td class="vmid plus-cell"><span class="sheet-plus ${estadoClass}" onclick="openCostosModal('${d.clienteId}','${d.id}', ${JSON.stringify(d.costos||[]).replace(/"/g,'&quot;')}, '${d.estadoCostos||''}')">+</span></td>`;
+      html += `<td class="vmid plus-cell"><span class="sheet-plus ${estadoClass}" onclick="openCostosModal('${d.clienteId}','${d.id}', ${i}, ${JSON.stringify(p.costos||[]).replace(/"/g,'&quot;')}, '${p.estadoCostos||''}')">+</span></td>`;
       const f = p.moneda==='USD'?fmtUSD:fmtARS;
       html += `<td>${p.esArreglo?'-':(p.cant||'')}</td><td>${f(p.total||0)}</td>`;
       if(i===0){
