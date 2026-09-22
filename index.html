@@ -145,13 +145,14 @@ table.p-detail tfoot tr.rule td{padding:0;border-top:2px solid #2b2b2b}
 table.p-detail tfoot tr.totalrow td{font-weight:700}
 table.p-detail tfoot tr.totalrow td.num{text-align:right;white-space:nowrap}
 table.p-detail tfoot tr.totalrow td.lbl{text-align:right}
-table.p-detail tfoot tr.payrow td.lbl,table.p-detail tfoot tr.saldorow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
-table.p-detail tfoot tr.payrow td.lbl b,table.p-detail tfoot tr.saldorow td.lbl b{display:block;font-weight:700}
-table.p-detail tfoot tr.payrow td.lbl .paren,table.p-detail tfoot tr.saldorow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
+table.p-detail tfoot tr.payrow td.lbl,table.p-detail tfoot tr.saldorow td.lbl,table.p-detail tfoot tr.deberow td.lbl{text-align:right;white-space:nowrap;line-height:1.1}
+table.p-detail tfoot tr.payrow td.lbl b,table.p-detail tfoot tr.saldorow td.lbl b,table.p-detail tfoot tr.deberow td.lbl b{display:block;font-weight:700}
+table.p-detail tfoot tr.payrow td.lbl .paren,table.p-detail tfoot tr.saldorow td.lbl .paren,table.p-detail tfoot tr.deberow td.lbl .paren{display:block;font-weight:400;text-transform:lowercase;font-size:.78em}
 table.p-detail tfoot tr.payrow td.num,table.p-detail tfoot tr.saldorow td.num{text-align:right;font-weight:700;white-space:nowrap}
 table.p-detail tfoot tr.saldorow td.lbl,table.p-detail tfoot tr.saldorow td.num{color:#3d7a52}
-table.p-detail tfoot tr.deberow td.lbl,table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right;white-space:nowrap;line-height:1.1}
-table.p-detail tfoot tr.deberow td.lbl b{display:block;font-weight:700}
+table.p-detail tfoot tr.deberow td.num{color:#a33;font-weight:700;text-align:right;white-space:nowrap}
+table.p-detail tfoot tr.deberow td.lbl{color:#a33;font-weight:700}
+table.p-detail tfoot tr.payrow td,table.p-detail tfoot tr.saldorow td,table.p-detail tfoot tr.deberow td{vertical-align:top}
 .p-terms{margin-top:20px;font-size:9.5px;line-height:1.55;color:#444}
 .p-terms .b{font-weight:600;color:#2b2b2b;margin-bottom:3px}
 .preview-actions{display:flex;gap:10px;margin-top:16px}
@@ -253,7 +254,6 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
 .deuda-row{display:flex;gap:10px;margin-top:4px}
 .deuda-row .field{flex:1}
 #doc-deuda-display{font-weight:600;color:#c1685c}
-.p-fechapago{display:block;font-weight:400;font-size:9.5px;color:#777;margin-top:2px;text-transform:none}
 .deudora-fechapago{font-size:11px;color:#9a9285;margin-top:2px}
 .card.deuda-vencida{border-color:#e0a89f;background:#fdf3f1}
 .card.deuda-vencida .name{color:#a13f38}
@@ -606,6 +606,8 @@ function waLink(tel){
 function normalize(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+// Sin ceros a la izquierda y sin año (para textos chicos tipo "1/10")
+function fmtDateCorto(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${parseInt(d,10)}/${parseInt(m,10)}`; }
 function fmtDateSheet(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${parseInt(d,10)}/${parseInt(m,10)}`; }
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
@@ -1501,7 +1503,7 @@ function buildPaperHTML(d, c, includeNotes){
       const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
       rows += `<tr class="saldorow"><td></td><td class="lbl"><b>Saldado ${fmtDate(d.saldadoFecha)}</b><span class="paren">(${METODOS[d.saldadoMetodo].paren})</span></td><td class="num">${f(d.saldadoMonto)}</td></tr>`;
     } else {
-      const fechaPagoHTML = d.fechaPago? `<span class="p-fechapago">Fecha de pago: ${fmtDate(d.fechaPago)}</span>` : '';
+      const fechaPagoHTML = d.fechaPago? `<span class="paren">(fecha de pago: ${fmtDateCorto(d.fechaPago)})</span>` : '';
       if(d.aPagarARS>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${fechaPagoHTML}</td><td class="num">${fmtARS(d.aPagarARS)}</td></tr>`;
       if(d.aPagarUSD>0) rows += `<tr class="deberow"><td></td><td class="lbl"><b>A pagar</b>${d.aPagarARS>0?'':fechaPagoHTML}</td><td class="num">${fmtUSD(d.aPagarUSD)}</td></tr>`;
     }
