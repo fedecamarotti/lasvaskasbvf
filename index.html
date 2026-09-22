@@ -376,7 +376,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
   <div class="sheet-wrap">
     <table class="sheet-table" id="venta-table">
       <colgroup>
-        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:40px"><col style="width:82px"><col style="width:78px"><col style="width:400px"><col style="width:32px"><col style="width:36px"><col style="width:68px"><col style="width:70px"><col style="width:76px"><col style="width:150px"><col style="width:72px"><col style="width:80px"><col style="width:88px">
+        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:56px"><col style="width:82px"><col style="width:78px"><col style="width:200px"><col style="width:48px"><col style="width:36px"><col style="width:68px"><col style="width:70px"><col style="width:172px"><col style="width:72px"><col style="width:80px"><col style="width:88px">
       </colgroup>
       <thead><tr>
         <th></th>
@@ -390,13 +390,12 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
         <th><input class="sheet-filter" id="vf-cant" placeholder="Cant." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-valorunit" placeholder="V. unit." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-total" placeholder="Total" oninput="applySheetFilters('venta')"></th>
-        <th><input class="sheet-filter" id="vf-pago" placeholder="Pago" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-metodo" placeholder="Método" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-dni" placeholder="DNI" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-factura" placeholder="Fact." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-celular" placeholder="Celular" oninput="applySheetFilters('venta')"></th>
       </tr></thead>
-      <tbody id="venta-sheet-body"><tr><td colspan="16" class="sheet-empty">Cargando...</td></tr></tbody>
+      <tbody id="venta-sheet-body"><tr><td colspan="15" class="sheet-empty">Cargando...</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -1785,7 +1784,7 @@ const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto'
 let presuSheetDocsRaw = [];
 let ventaSheetDocsRaw = [];
 const PRESU_COLS = ['clienta','fecha','fechaEvento','celular','producto','valorEfvo','valorTarj'];
-const VENTA_COLS = ['codigo','clienta','fecha','pventa','fevento','producto','cant','valorunit','total','pago','metodo','dni','factura','celular'];
+const VENTA_COLS = ['codigo','clienta','fecha','pventa','fevento','producto','cant','valorunit','total','metodo','dni','factura','celular'];
 function presuColText(d, col){
   switch(col){
     case 'clienta': return `${d.clienteNombre} ${d.clienteApellido}`;
@@ -1809,7 +1808,6 @@ function ventaColText(d, col){
     case 'cant': return (d.productos||[]).map(p=>p.esArreglo?'':(p.cant||'')).join(' ');
     case 'valorunit': return (d.productos||[]).map(p=>String(p.valorUnit||'')).join(' ');
     case 'total': return (d.productos||[]).map(p=>String(p.total||'')).join(' ');
-    case 'pago': return (d.pagos||[]).filter(p=>!p.pagoDocId).map(p=>String(p.monto||'')).join(' ');
     case 'metodo': {
       const pagosTxt = (d.pagos||[]).map(p=>METODOS[p.metodo].label).join(' ');
       const debe = ((d.aPagarARS||0)>0||(d.aPagarUSD||0)>0) ? 'debe' : '';
@@ -1910,32 +1908,27 @@ function openVentasSheet(){
   showScreen('venta-sheet');
   const {start,end} = monthRange(ventaMonth);
   const body = document.getElementById('venta-sheet-body');
-  body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Cargando...</td></tr>';
+  body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Cargando...</td></tr>';
   db.collection('ventas').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
     ventaSheetDocsRaw = snap.docs.map(d=>({id:d.id,...d.data()}));
     applySheetFilters('venta');
   }).catch(err=>{
     console.error(err);
-    body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
+    body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
   });
 }
+// Etiquetas cortas para la planilla (evita repetir "Transferencia" completo al lado del monto)
+const METODO_SHEET_LABEL = {EFVO_ARS:'Efectivo $', EFVO_USD:'Efectivo usd', TRBF:'Transf. BF', TRVF:'Transf. VF', TARJ:'Tarjeta'};
 // Monto pagado "de origen" (cargado junto con la venta), sin contar los pagos posteriores que saldan deuda
 // (esos se muestran como su propio movimiento "Salda c/c" en la planilla).
-function fmtEmbeddedPago(d){
-  let ars=0, usd=0;
-  (d.pagos||[]).filter(p=>!p.pagoDocId).forEach(p=>{
-    if(METODOS[p.metodo].moneda==='ARS') ars+=p.monto; else usd+=p.monto;
-  });
-  const parts=[];
-  if(ars) parts.push(fmtARS(ars));
-  if(usd) parts.push(fmtUSD(usd));
-  return parts.join(' + ');
-}
 function ventaMetodoCellHTML(d){
   const classes = {EFVO_ARS:'metodo-efvo',EFVO_USD:'metodo-efvo',TRBF:'metodo-transf',TRVF:'metodo-transf',TARJ:'metodo-tarj'};
   const sums = {};
-  (d.pagos||[]).filter(p=>!p.pagoDocId).forEach(p=>{ sums[p.metodo] = true; });
-  let html = Object.keys(sums).map(m=>`<span class="metodo-chip ${classes[m]||''}">${METODOS[m].label}</span>`).join('');
+  (d.pagos||[]).filter(p=>!p.pagoDocId).forEach(p=>{ sums[p.metodo] = (sums[p.metodo]||0) + p.monto; });
+  let html = Object.keys(sums).map(m=>{
+    const f = METODOS[m].moneda==='USD'?fmtUSD:fmtARS;
+    return `<span class="metodo-chip ${classes[m]||''}">${METODO_SHEET_LABEL[m]||METODOS[m].label} ${f(sums[m])}</span>`;
+  }).join('');
   if((d.aPagarARS||0)>0 || (d.aPagarUSD||0)>0){
     const debe = fmtDebtObj({ars:d.aPagarARS||0, usd:d.aPagarUSD||0});
     html += `<span class="metodo-chip metodo-debe">Debe ${debe}</span>`;
@@ -1955,7 +1948,7 @@ function facturaColorClass(d){
 }
 function renderVentaSheet(docs){
   const body = document.getElementById('venta-sheet-body');
-  if(!docs.length){ body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
+  if(!docs.length){ body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
   let html = '';
   docs.forEach(d=>{
     const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
@@ -1983,7 +1976,6 @@ function renderVentaSheet(docs){
         html += `<td>${f(p.total||0)}</td>`;
       }
       if(i===0){
-        html += `<td class="vmid" rowspan="${rowspan}">${fmtEmbeddedPago(d)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${ventaMetodoCellHTML(d)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.clienteDni||''}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.esSaldoMovimiento? '' : `<input class="sheet-inline-input ${facturaColorClass(d)}" value="${d.factura||''}" placeholder="N° factura" data-cliente-id="${d.clienteId}" data-venta-id="${d.id}" onchange="updateFacturaInline(this)">`}</td>`;
