@@ -190,6 +190,7 @@ td.edit-cell{width:26px}
 .metodo-tarj{background:#efe6fb;color:#6b4b96}
 .metodo-transf{background:#e3eaf7;color:#3f5f96}
 .metodo-debe{background:#fbe4e1;color:#a13f38}
+.metodo-pagado{background:#fbf0c9;color:#8a6a1f}
 .costos-totals{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#8a8375}
 .sheet-authorize{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#4f8f68;color:#fff;font-size:11px;font-weight:700;cursor:pointer;margin-top:4px}
 body.role-limited #venta-table th:nth-child(8),
@@ -375,7 +376,7 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
   <div class="sheet-wrap">
     <table class="sheet-table" id="venta-table">
       <colgroup>
-        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:40px"><col style="width:82px"><col style="width:78px"><col style="width:420px"><col style="width:32px"><col style="width:36px"><col style="width:72px"><col style="width:78px"><col style="width:160px"><col style="width:72px"><col style="width:80px"><col style="width:88px">
+        <col style="width:26px"><col style="width:44px"><col style="width:120px"><col style="width:40px"><col style="width:82px"><col style="width:78px"><col style="width:400px"><col style="width:32px"><col style="width:36px"><col style="width:68px"><col style="width:70px"><col style="width:76px"><col style="width:150px"><col style="width:72px"><col style="width:80px"><col style="width:88px">
       </colgroup>
       <thead><tr>
         <th></th>
@@ -387,14 +388,15 @@ body.role-limited #venta-table colgroup col:nth-child(8){display:none}
         <th><input class="sheet-filter" id="vf-producto" placeholder="Producto" oninput="applySheetFilters('venta')"></th>
         <th>Costos</th>
         <th><input class="sheet-filter" id="vf-cant" placeholder="Cant." oninput="applySheetFilters('venta')"></th>
-        <th><input class="sheet-filter" id="vf-valor" placeholder="Valor" oninput="applySheetFilters('venta')"></th>
+        <th><input class="sheet-filter" id="vf-valorunit" placeholder="V. unit." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-total" placeholder="Total" oninput="applySheetFilters('venta')"></th>
+        <th><input class="sheet-filter" id="vf-pago" placeholder="Pago" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-metodo" placeholder="Método" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-dni" placeholder="DNI" oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-factura" placeholder="Fact." oninput="applySheetFilters('venta')"></th>
         <th><input class="sheet-filter" id="vf-celular" placeholder="Celular" oninput="applySheetFilters('venta')"></th>
       </tr></thead>
-      <tbody id="venta-sheet-body"><tr><td colspan="15" class="sheet-empty">Cargando...</td></tr></tbody>
+      <tbody id="venta-sheet-body"><tr><td colspan="16" class="sheet-empty">Cargando...</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -887,6 +889,7 @@ function openDocModal(tipo, existing){
   }
   editingDocTipo = tipo;
   editingExistingCodigo = existing? (existing.codigo!==undefined? existing.codigo : null) : null;
+  editingExistingSaldarPagos = existing? (existing.pagos||[]).filter(p=>p.pagoDocId) : [];
   document.getElementById('doc-id').value = existing? existing.id : '';
   document.getElementById('doc-tipo').value = tipo;
   document.getElementById('doc-fecha').value = existing? existing.fecha : todayISO();
@@ -917,7 +920,9 @@ function openDocModal(tipo, existing){
 
   document.getElementById('pagos-container').innerHTML='';
   if(tipo==='venta'){
-    const pagos = existing? (existing.pagos||[]) : [];
+    // Solo se editan acá los pagos cargados junto con la venta; los que saldan deuda por separado
+    // (con pagoDocId) se administran desde el botón "Pago" en la ficha, no desde este formulario.
+    const pagos = existing? (existing.pagos||[]).filter(p=>!p.pagoDocId) : [];
     pagos.forEach(p=>addPagoRow(p));
   }
   recalcLiveTotal();
@@ -1155,6 +1160,9 @@ function saveDoc(){
       pagadoARS += addARS; pagadoUSD += addUSD;
     });
     if(pagoError){ alert('Falta método de pago'); return; }
+    // Los pagos que saldaron deuda por separado (con pagoDocId) no se editan desde acá: se conservan tal cual.
+    pagos = [...editingExistingSaldarPagos, ...pagos];
+    editingExistingSaldarPagos.forEach(p=>{ pagadoARS += p.addARS||0; pagadoUSD += p.addUSD||0; });
     data.pagos = pagos; data.totalARS = totalARS; data.totalUSD = totalUSD;
     data.pagadoARS = pagadoARS; data.pagadoUSD = pagadoUSD;
     data.aPagarARS = Math.max(0, totalARS - pagadoARS);
@@ -1199,6 +1207,7 @@ function saveDoc(){
   }
 }
 let editingExistingCodigo = null;
+let editingExistingSaldarPagos = []; // pagos que saldan deuda (con pagoDocId) de la venta que se está editando; no se tocan acá
 function existingDocHasCodigo(id){ return !!id && editingExistingCodigo!=null; }
 function deleteDoc(){
   const id = document.getElementById('doc-id').value;
@@ -1288,6 +1297,33 @@ function commitVentaUpdate(docId, updateData){
     db.collection('ventas').doc(docId).update(updateData).catch(()=>{});
   });
 }
+// Cuando se salda una deuda con un pago aparte, ese pago se muestra como su propio movimiento
+// "Salda c/c" en la planilla de Ventas (no modifica la fila original de la venta).
+function buildSaldoMovimientoData(ventaDoc, metodo, monto, fecha){
+  return {
+    tipo:'venta', esSaldoMovimiento:true, fecha,
+    clienteId: currentClienteId,
+    clienteNombre: currentClienteData.nombre, clienteApellido: currentClienteData.apellido,
+    clienteTelefono: currentClienteData.telefono||'', clienteDni: currentClienteData.dni||'',
+    codigo:'-', puntoVenta:'Salda c/c', fechaEvento:'-',
+    productos:[{desc:`Salda deuda del ${fmtDateCorto(ventaDoc.fecha)}`, cant:'-', valorUnit:'-', total:'-'}],
+    pagos:[{metodo, monto}], aPagarARS:0, aPagarUSD:0,
+    createdAt: Date.now()
+  };
+}
+// Refleja un movimiento "Salda c/c" en la planilla de ventas ya abierta, sin recargarla desde Firestore.
+function upsertSaldoMovimientoInSheet(id, data){
+  if(document.getElementById('screen-venta-sheet').classList.contains('hidden')) return;
+  const idx = ventaSheetDocsRaw.findIndex(x=>x.id===id);
+  if(idx>-1) ventaSheetDocsRaw[idx] = {id, ...data};
+  else ventaSheetDocsRaw.push({id, ...data});
+  applySheetFilters('venta');
+}
+function removeSaldoMovimientoFromSheet(id){
+  if(document.getElementById('screen-venta-sheet').classList.contains('hidden')) return;
+  const idx = ventaSheetDocsRaw.findIndex(x=>x.id===id);
+  if(idx>-1){ ventaSheetDocsRaw.splice(idx,1); applySheetFilters('venta'); }
+}
 function savePago(){
   const editPagoId = document.getElementById('pago-editing-id').value;
   const metodo = document.getElementById('pago-metodo-select').value;
@@ -1327,9 +1363,12 @@ function savePago(){
       batch.update(db.collection('clientas').doc(currentClienteId).collection('documentos').doc(editPagoId), pagoUpdate);
       batch.commit().then(()=>{
         db.collection('ventas').doc(pagoDoc.refVentaId).update(updateData).catch(()=>{});
+        const saldoData = buildSaldoMovimientoData(d, metodo, monto, pagoDoc.fecha);
+        db.collection('ventas').doc(editPagoId).set(saldoData).catch(()=>{});
         closeModal('modal-pago');
         upsertDocInCache({...d, ...updateData});
         upsertDocInCache({...pagoDoc, metodo, monto, cotizacion: cotizacion||undefined});
+        upsertSaldoMovimientoInSheet(editPagoId, saldoData);
         refreshClienteDeudaFast(currentClienteId);
         setBusy(false);
       }).catch(err=>{
@@ -1375,9 +1414,12 @@ function savePago(){
   batch.set(pagoRef, pagoData);
   batch.commit().then(()=>{
     db.collection('ventas').doc(docId).update(updateData).catch(()=>{});
+    const saldoData = buildSaldoMovimientoData(d, metodo, monto, fecha);
+    db.collection('ventas').doc(pagoRef.id).set(saldoData).catch(()=>{});
     closeModal('modal-pago');
     upsertDocInCache({...d, ...updateData});
     upsertDocInCache({id: pagoRef.id, ...pagoData});
+    upsertSaldoMovimientoInSheet(pagoRef.id, saldoData);
     refreshClienteDeudaFast(currentClienteId);
     setBusy(false);
   }).catch(err=>{
@@ -1408,9 +1450,11 @@ function deletePago(){
     batch.delete(clienteDocs.doc(pagoId));
     batch.commit().then(()=>{
       if(updateData) db.collection('ventas').doc(pagoDoc.refVentaId).update(updateData).catch(()=>{});
+      db.collection('ventas').doc(pagoId).delete().catch(()=>{}); // borra el movimiento "Salda c/c" asociado
       closeModal('modal-pago');
       removeDocFromCache(pagoId);
       if(ventaData) upsertDocInCache(ventaData);
+      removeSaldoMovimientoFromSheet(pagoId);
       refreshClienteDeudaFast(currentClienteId);
     }).catch(err=>{
       console.error(err);
@@ -1723,7 +1767,11 @@ function saveCostos(){
     return ventaRef.update({productos}).then(()=>{
       db.collection('ventas').doc(ventaId).update({productos}).catch(()=>{});
       closeModal('modal-costos');
-      if(!document.getElementById('screen-venta-sheet').classList.contains('hidden')) openVentasSheet();
+      // Actualizamos la planilla en memoria en vez de recargarla desde Firestore: evita el problema de que,
+      // como la copia global (colección "ventas") se escribe en paralelo, la recarga a veces llegaba antes
+      // de que esa escritura terminara y mostraba el color del "+" desactualizado.
+      const idx = ventaSheetDocsRaw.findIndex(x=>x.id===ventaId);
+      if(idx>-1){ ventaSheetDocsRaw[idx] = {...ventaSheetDocsRaw[idx], productos}; applySheetFilters('venta'); }
       if(currentClienteId===clienteId) upsertDocInCache({id: ventaId, ...d, productos});
     });
   }).catch(err=>{
@@ -1737,7 +1785,7 @@ const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto'
 let presuSheetDocsRaw = [];
 let ventaSheetDocsRaw = [];
 const PRESU_COLS = ['clienta','fecha','fechaEvento','celular','producto','valorEfvo','valorTarj'];
-const VENTA_COLS = ['codigo','clienta','fecha','pventa','fevento','producto','cant','valor','total','metodo','dni','factura','celular'];
+const VENTA_COLS = ['codigo','clienta','fecha','pventa','fevento','producto','cant','valorunit','total','pago','metodo','dni','factura','celular'];
 function presuColText(d, col){
   switch(col){
     case 'clienta': return `${d.clienteNombre} ${d.clienteApellido}`;
@@ -1759,8 +1807,9 @@ function ventaColText(d, col){
     case 'fevento': return d.fechaEvento||'';
     case 'producto': return (d.productos||[]).map(p=>p.desc).join(' ');
     case 'cant': return (d.productos||[]).map(p=>p.esArreglo?'':(p.cant||'')).join(' ');
-    case 'valor': return (d.productos||[]).map(p=>String(p.total||'')).join(' ');
-    case 'total': return `${d.totalARS||''} ${d.totalUSD||''}`;
+    case 'valorunit': return (d.productos||[]).map(p=>String(p.valorUnit||'')).join(' ');
+    case 'total': return (d.productos||[]).map(p=>String(p.total||'')).join(' ');
+    case 'pago': return (d.pagos||[]).filter(p=>!p.pagoDocId).map(p=>String(p.monto||'')).join(' ');
     case 'metodo': {
       const pagosTxt = (d.pagos||[]).map(p=>METODOS[p.metodo].label).join(' ');
       const debe = ((d.aPagarARS||0)>0||(d.aPagarUSD||0)>0) ? 'debe' : '';
@@ -1861,33 +1910,40 @@ function openVentasSheet(){
   showScreen('venta-sheet');
   const {start,end} = monthRange(ventaMonth);
   const body = document.getElementById('venta-sheet-body');
-  body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Cargando...</td></tr>';
+  body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Cargando...</td></tr>';
   db.collection('ventas').where('fecha','>=',start).where('fecha','<=',end).orderBy('fecha').get().then(snap=>{
     ventaSheetDocsRaw = snap.docs.map(d=>({id:d.id,...d.data()}));
     applySheetFilters('venta');
   }).catch(err=>{
     console.error(err);
-    body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
+    body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Error al cargar. Revisá la consola.</td></tr>';
   });
 }
+// Monto pagado "de origen" (cargado junto con la venta), sin contar los pagos posteriores que saldan deuda
+// (esos se muestran como su propio movimiento "Salda c/c" en la planilla).
+function fmtEmbeddedPago(d){
+  let ars=0, usd=0;
+  (d.pagos||[]).filter(p=>!p.pagoDocId).forEach(p=>{
+    if(METODOS[p.metodo].moneda==='ARS') ars+=p.monto; else usd+=p.monto;
+  });
+  const parts=[];
+  if(ars) parts.push(fmtARS(ars));
+  if(usd) parts.push(fmtUSD(usd));
+  return parts.join(' + ');
+}
 function ventaMetodoCellHTML(d){
-  if(d.saldado && (d.aPagarARS||0)<=0 && (d.aPagarUSD||0)<=0){
-    const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
-    return `<span style="color:#3f8a5c">Pagó ${f(d.saldadoMonto)}<br>el ${fmtDateShort(d.saldadoFecha)}</span>`;
-  }
-  if((d.aPagarARS||0)>0 || (d.aPagarUSD||0)>0){
-    const debe = fmtDebtObj({ars:d.aPagarARS||0, usd:d.aPagarUSD||0});
-    return `<span class="metodo-chip metodo-debe">Debe ${debe}${d.fechaPago?`<br>${fmtDateShort(d.fechaPago)}`:''}</span>`;
-  }
   const classes = {EFVO_ARS:'metodo-efvo',EFVO_USD:'metodo-efvo',TRBF:'metodo-transf',TRVF:'metodo-transf',TARJ:'metodo-tarj'};
   const sums = {};
-  (d.pagos||[]).forEach(p=>{ sums[p.metodo] = (sums[p.metodo]||0) + p.monto; });
-  const metodos = Object.keys(sums);
-  if(!metodos.length) return '';
-  return metodos.map(m=>{
-    const f = METODOS[m].moneda==='USD'?fmtUSD:fmtARS;
-    return `<span class="metodo-chip ${classes[m]||''}">${METODOS[m].label}: ${f(sums[m])}</span>`;
-  }).join('');
+  (d.pagos||[]).filter(p=>!p.pagoDocId).forEach(p=>{ sums[p.metodo] = true; });
+  let html = Object.keys(sums).map(m=>`<span class="metodo-chip ${classes[m]||''}">${METODOS[m].label}</span>`).join('');
+  if((d.aPagarARS||0)>0 || (d.aPagarUSD||0)>0){
+    const debe = fmtDebtObj({ars:d.aPagarARS||0, usd:d.aPagarUSD||0});
+    html += `<span class="metodo-chip metodo-debe">Debe ${debe}</span>`;
+  } else if(d.saldado){
+    const f = d.saldadoMoneda==='USD'?fmtUSD:fmtARS;
+    html += `<span class="metodo-chip metodo-pagado">Pagó ${f(d.saldadoMonto)} ${fmtDateCorto(d.saldadoFecha)}</span>`;
+  }
+  return html;
 }
 // prioridad de color del casillero factura: TRBF (azul) > TRVF/TARJ (naranja) > efectivo (gris)
 function facturaColorClass(d){
@@ -1899,17 +1955,15 @@ function facturaColorClass(d){
 }
 function renderVentaSheet(docs){
   const body = document.getElementById('venta-sheet-body');
-  if(!docs.length){ body.innerHTML = '<tr><td colspan="15" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
+  if(!docs.length){ body.innerHTML = '<tr><td colspan="16" class="sheet-empty">Sin ventas este mes.</td></tr>'; return; }
   let html = '';
   docs.forEach(d=>{
     const rowspan = Math.max((d.productos||[]).length + (d.notas?1:0), 1);
-    let totalTxt = [d.totalARS?fmtARS(d.totalARS):'', d.totalUSD?fmtUSD(d.totalUSD):''].filter(Boolean).join('<br>');
     (d.productos||[]).forEach((p,i)=>{
-      const estadoClass = p.estadoCostos==='falta'?'estado-falta':(p.estadoCostos==='completo'?'estado-completo':'');
       html += `<tr class="${i===0?'group-first':''}">`;
       if(i===0){
         html += `<td class="vmid edit-cell" rowspan="${rowspan}">
-          <span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','venta')"><i class="fa-solid fa-pen"></i></span>
+          ${d.esSaldoMovimiento? '' : `<span class="sheet-pencil" onclick="editSheetDoc('${d.clienteId}','${d.id}','venta')"><i class="fa-solid fa-pen"></i></span>`}
         </td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.codigo||'-'}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}"><b class="sheet-client-link" onclick="goToClienteFromSheet('${d.clienteId}')">${d.clienteNombre} ${d.clienteApellido}</b></td>`;
@@ -1918,14 +1972,21 @@ function renderVentaSheet(docs){
         html += `<td class="vmid" rowspan="${rowspan}">${d.fechaEvento||''}</td>`;
       }
       html += `<td>${p.desc}</td>`;
-      html += `<td class="vmid plus-cell"><span class="sheet-plus ${estadoClass}" onclick="openCostosModal('${d.clienteId}','${d.id}', ${i}, ${JSON.stringify(p.costos||[]).replace(/"/g,'&quot;')}, '${p.estadoCostos||''}')">+</span></td>`;
-      const f = p.moneda==='USD'?fmtUSD:fmtARS;
-      html += `<td>${p.esArreglo?'-':(p.cant||'')}</td><td>${f(p.total||0)}</td>`;
+      if(d.esSaldoMovimiento){
+        html += `<td class="vmid">-</td><td>-</td><td>-</td><td>-</td>`;
+      } else {
+        const estadoClass = p.estadoCostos==='falta'?'estado-falta':(p.estadoCostos==='completo'?'estado-completo':'');
+        html += `<td class="vmid plus-cell"><span class="sheet-plus ${estadoClass}" onclick="openCostosModal('${d.clienteId}','${d.id}', ${i}, ${JSON.stringify(p.costos||[]).replace(/"/g,'&quot;')}, '${p.estadoCostos||''}')">+</span></td>`;
+        const f = p.moneda==='USD'?fmtUSD:fmtARS;
+        html += `<td>${p.esArreglo?'-':(p.cant||'')}</td>`;
+        html += `<td>${p.esArreglo?'-':f(p.valorUnit||0)}</td>`;
+        html += `<td>${f(p.total||0)}</td>`;
+      }
       if(i===0){
-        html += `<td class="vmid" rowspan="${rowspan}">${totalTxt}</td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${fmtEmbeddedPago(d)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${ventaMetodoCellHTML(d)}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.clienteDni||''}</td>`;
-        html += `<td class="vmid" rowspan="${rowspan}"><input class="sheet-inline-input ${facturaColorClass(d)}" value="${d.factura||''}" placeholder="N° factura" data-cliente-id="${d.clienteId}" data-venta-id="${d.id}" onchange="updateFacturaInline(this)"></td>`;
+        html += `<td class="vmid" rowspan="${rowspan}">${d.esSaldoMovimiento? '' : `<input class="sheet-inline-input ${facturaColorClass(d)}" value="${d.factura||''}" placeholder="N° factura" data-cliente-id="${d.clienteId}" data-venta-id="${d.id}" onchange="updateFacturaInline(this)">`}</td>`;
         html += `<td class="vmid" rowspan="${rowspan}">${d.clienteTelefono||''}</td>`;
       }
       html += `</tr>`;
