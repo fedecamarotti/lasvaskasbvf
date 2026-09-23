@@ -781,6 +781,7 @@ function saveClienta(){
     direccion: document.getElementById('clienta-direccion').value.trim()
   };
   if(!data.nombre || !data.apellido){ alert('Nombre y apellido son obligatorios'); return; }
+  if(!data.telefono && currentUserRole!=='admin'){ alert('El teléfono es obligatorio'); return; }
   const p = id ? db.collection('clientas').doc(id).update(data)
                : db.collection('clientas').add({...data, createdAt: Date.now()});
   p.then(()=>{
